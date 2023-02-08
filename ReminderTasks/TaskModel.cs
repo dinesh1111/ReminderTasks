@@ -419,55 +419,62 @@ namespace ReminderTasks
 
         public void LoadFromDB()
         {
-            string Items = File.ReadAllText(DBPath);
-            string[] SplitItems = Items.Split(DBItemsSeperator,StringSplitOptions.RemoveEmptyEntries);
-            bool DBIssueFound = false;
-
-            if (Items.Contains(DBItemsSeperator))
+            try
             {
-                foreach (string items in SplitItems)
+                string Items = File.ReadAllText(DBPath);
+                string[] SplitItems = Items.Split(DBItemsSeperator, StringSplitOptions.RemoveEmptyEntries);
+                bool DBIssueFound = false;
+
+                if (Items.Contains(DBItemsSeperator))
                 {
-                    string alias = string.Empty;
-                    string link = string.Empty;
-                    string whenToRun = string.Empty;
-                    foreach (string item in items.Split("\r\n",StringSplitOptions.RemoveEmptyEntries))
+                    foreach (string items in SplitItems)
                     {
-                        if (item.StartsWith(nameof(Alias)))
+                        string alias = string.Empty;
+                        string link = string.Empty;
+                        string whenToRun = string.Empty;
+                        foreach (string item in items.Split("\r\n", StringSplitOptions.RemoveEmptyEntries))
                         {
-                            alias = item.Replace(nameof(Alias) + DBFieldSeperator, string.Empty);
+                            if (item.StartsWith(nameof(Alias)))
+                            {
+                                alias = item.Replace(nameof(Alias) + DBFieldSeperator, string.Empty);
+                            }
+                            else if (item.StartsWith(nameof(Link)))
+                            {
+                                link = item.Replace(nameof(Link) + DBFieldSeperator, string.Empty);
+                            }
+                            else if (item.StartsWith(nameof(WhenToRun)))
+                            {
+                                whenToRun = item.Replace(nameof(WhenToRun) + DBFieldSeperator, string.Empty);
+                            }
+                            else
+                            {
+                                Console.WriteLine(DBLoadingError);
+                                DBIssueFound = true;
+                            }
                         }
-                        else if (item.StartsWith(nameof(Link)))
+                        if (!DBIssueFound)
                         {
-                            link = item.Replace(nameof(Link) + DBFieldSeperator, string.Empty);
-                        }
-                        else if (item.StartsWith(nameof(WhenToRun)))
-                        {
-                            whenToRun = item.Replace(nameof(WhenToRun) + DBFieldSeperator, string.Empty);
-                        }
-                        else
-                        {
-                            Console.WriteLine(DBLoadingError);
-                            DBIssueFound = true;
+                            if (alias != string.Empty || link != string.Empty || whenToRun != string.Empty)
+                            {
+                                int key = GetMaxKey(Instance.DictTasks);
+                                if (!Instance.DictTasks.ContainsKey(key))
+                                {
+                                    Instance.DictTasks.Add(key, new TaskModel(alias, link, whenToRun));
+                                }
+                            }
                         }
                     }
                     if (!DBIssueFound)
                     {
-                        if (alias != string.Empty || link != string.Empty || whenToRun!=string.Empty) 
-                        {
-                            int key = GetMaxKey(Instance.DictTasks);
-                            if (!Instance.DictTasks.ContainsKey(key))
-                            {
-                                Instance.DictTasks.Add(key, new TaskModel(alias, link, whenToRun));
-                            }
-                        }
+                        Console.WriteLine(DBLoadedSuccessfully);
                     }
+                    File.WriteAllText(DBPath, Items);
                 }
-                if (!DBIssueFound)
-                { 
-                    Console.WriteLine(DBLoadedSuccessfully);
-                }
-                File.WriteAllText(DBPath, Items);
             }
+            catch (Exception ex)
+            {
+                WriteToErrorLog(ex.Message, "LoadFromDB");
+            }            
         }
 
         public void WriteToErrorLog(string message, string fromMethod)
