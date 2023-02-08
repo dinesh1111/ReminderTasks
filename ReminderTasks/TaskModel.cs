@@ -481,7 +481,9 @@ namespace ReminderTasks
 
         public void WriteToErrorLog(string message, string fromMethod)
         {
-            File.WriteAllText(ErrorLogPath, fromMethod + "\r\n" + message);
+            string fileText = File.ReadAllText(ErrorLogPath);
+            fileText += string.Format("{0}{1}{2}{3}{4}{5}","\r\n" , "Message: ", message , "\r\n" ,"From Method: ", fromMethod);
+            File.WriteAllText(ErrorLogPath, fileText);
         }
     }
 }
