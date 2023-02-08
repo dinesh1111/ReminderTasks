@@ -421,6 +421,7 @@ namespace ReminderTasks
         {
             try
             {
+                WriteToErrorLog("DB Loading", "LoadFromDB");
                 string Items = File.ReadAllText(DBPath);
                 string[] SplitItems = Items.Split(DBItemsSeperator, StringSplitOptions.RemoveEmptyEntries);
                 bool DBIssueFound = false;
@@ -470,6 +471,7 @@ namespace ReminderTasks
                     }
                     File.WriteAllText(DBPath, Items);
                 }
+                WriteToErrorLog("DB Loading", "LoadFromDB");
             }
             catch (Exception ex)
             {
