@@ -8,51 +8,39 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="obj\Debug\net6.0\.NETCoreApp,Version=v6.0.AssemblyAttributes.cs" />
-    <Compile Include="obj\Debug\net6.0\ReminderTasks.AssemblyInfo.cs" />
-    <Compile Include="obj\Debug\net6.0\ReminderTasks.GlobalUsings.g.cs" />
-    <Compile Include="obj\Release\net6.0\.NETCoreApp,Version=v6.0.AssemblyAttributes.cs" />
-    <Compile Include="obj\Release\net6.0\ReminderTasks.AssemblyInfo.cs" />
-    <Compile Include="obj\Release\net6.0\ReminderTasks.GlobalUsings.g.cs" />
+    <Compile Remove="obj\**" />
+    <EmbeddedResource Remove="obj\**" />
+    <None Remove="obj\**" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="bin\Debug\net6.0\ReminderTasks.deps.json" />
     <Content Include="bin\Debug\net6.0\ReminderTasks.runtimeconfig.json" />
-    <Content Include="obj\Debug\net6.0\ReminderTasks.csproj.FileListAbsolute.txt" />
-    <Content Include="obj\project.assets.json" />
-    <Content Include="obj\ReminderTasks.csproj.nuget.dgspec.json" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="bin\Debug\net6.0\ReminderTasks.dll" />
     <None Include="bin\Debug\net6.0\ReminderTasks.exe" />
     <None Include="bin\Debug\net6.0\ReminderTasks.pdb" />
-    <None Include="obj\Debug\net6.0\apphost.exe" />
-    <None Include="obj\Debug\net6.0\refint\ReminderTasks.dll" />
-    <None Include="obj\Debug\net6.0\ref\ReminderTasks.dll" />
-    <None Include="obj\Debug\net6.0\ReminderTasks.AssemblyInfoInputs.cache" />
-    <None Include="obj\Debug\net6.0\ReminderTasks.assets.cache" />
-    <None Include="obj\Debug\net6.0\ReminderTasks.csproj.AssemblyReference.cache" />
-    <None Include="obj\Debug\net6.0\ReminderTasks.csproj.BuildWithSkipAnalyzers" />
-    <None Include="obj\Debug\net6.0\ReminderTasks.csproj.CoreCompileInputs.cache" />
-    <None Include="obj\Debug\net6.0\ReminderTasks.dll" />
-    <None Include="obj\Debug\net6.0\ReminderTasks.GeneratedMSBuildEditorConfig.editorconfig" />
-    <None Include="obj\Debug\net6.0\ReminderTasks.genruntimeconfig.cache" />
-    <None Include="obj\Debug\net6.0\ReminderTasks.pdb" />
-    <None Include="obj\project.nuget.cache" />
-    <None Include="obj\Release\net6.0\ReminderTasks.AssemblyInfoInputs.cache" />
-    <None Include="obj\Release\net6.0\ReminderTasks.assets.cache" />
-    <None Include="obj\Release\net6.0\ReminderTasks.csproj.AssemblyReference.cache" />
-    <None Include="obj\Release\net6.0\ReminderTasks.GeneratedMSBuildEditorConfig.editorconfig" />
-    <None Include="obj\ReminderTasks.csproj.nuget.g.props" />
-    <None Include="obj\ReminderTasks.csproj.nuget.g.targets" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="bin\Release\net6.0\" />
-    <Folder Include="obj\Release\net6.0\refint\" />
-    <Folder Include="obj\Release\net6.0\ref\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="AddMultiple.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="DB.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ErrorLog.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Todo.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
