@@ -456,8 +456,8 @@ namespace ReminderTasks
                             else
                             {
                                 Console.WriteLine(DBLoadingError + alias + link + whenToRun);
-                                DBIssueFound = true;
-                            }
+                                DBIssueFound = true; ;
+                            }  
                         }
                         if (!DBIssueFound)
                         {
