@@ -17,9 +17,7 @@ namespace ReminderTasks
             CancellationToken cancelToken = _cancelTokenSrc.Token;
 
             try
-            {
-                Console.WriteLine("Started");
-                Console.ReadLine();
+            {                
                 Task.Run(()=>DoWork(),cancelToken);
                 Task.Run(() => ListenForInput(), cancelToken);
                 cancelToken.WaitHandle.WaitOne();
