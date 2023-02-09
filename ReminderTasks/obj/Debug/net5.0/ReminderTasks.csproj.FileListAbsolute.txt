@@ -1,0 +1,5 @@
+C:\Rajesh\ReminderTasks\ReminderTasks\obj\Debug\net5.0\ReminderTasks.csproj.AssemblyReference.cache
+C:\Rajesh\ReminderTasks\ReminderTasks\obj\Debug\net5.0\ReminderTasks.GeneratedMSBuildEditorConfig.editorconfig
+C:\Rajesh\ReminderTasks\ReminderTasks\obj\Debug\net5.0\ReminderTasks.AssemblyInfoInputs.cache
+C:\Rajesh\ReminderTasks\ReminderTasks\obj\Debug\net5.0\ReminderTasks.AssemblyInfo.cs
+C:\Rajesh\ReminderTasks\ReminderTasks\obj\Debug\net5.0\ReminderTasks.csproj.CoreCompileInputs.cache

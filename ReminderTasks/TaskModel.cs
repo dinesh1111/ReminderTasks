@@ -235,14 +235,21 @@ namespace ReminderTasks
 
         public void StartProcess(string path)
         {
-            if (path != string.Empty)
+            try
             {
-                System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                if (path != string.Empty)
                 {
-                    FileName = path,
-                    UseShellExecute = true
-                });
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = path,
+                        UseShellExecute = true
+                    });
+                }
             }
+            catch (Exception ex)
+            {
+                WriteToErrorLog(ex.Message, "StartProcessMethod");
+            }            
         }
 
         public bool Add(string alias,string link, string whenToRun)
