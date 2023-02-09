@@ -17,20 +17,23 @@ namespace ReminderTasks
             CancellationToken cancelToken = _cancelTokenSrc.Token;
 
             try
-            {                
+            {
+                Console.WriteLine("Started");
+                Console.ReadLine();
                 Task.Run(()=>DoWork(),cancelToken);
                 Task.Run(() => ListenForInput(), cancelToken);
                 cancelToken.WaitHandle.WaitOne();
                 cancelToken.ThrowIfCancellationRequested();
             }
-            catch(OperationCanceledException)
+            catch(OperationCanceledException ex)
             {
                 Console.WriteLine(OperationCanceled);
+                TaskModel.Instance.WriteToErrorLog(ex.Message, MainMethod);
             }
             catch (Exception ex)
             {
                 TaskModel.Instance.WriteToErrorLog(ex.Message, MainMethod);
-            }
+            }            
         }
 
         static void ListenForInput()
