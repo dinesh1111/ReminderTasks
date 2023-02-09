@@ -60,6 +60,18 @@ namespace ReminderTasks
         }
     }
 
+    public class SetDefaultRemindersTimeCommand : ICommand
+    {
+        public void Execute()
+        {
+            Console.WriteLine("Enter in mins for example 15/30/...");
+            string showMins = Console.ReadLine();
+            TaskModel.Instance.ShowReminderFileInMins = Convert.ToInt32(showMins);
+            TaskModel.Instance.SetShowReminderFileInMins();
+            Console.WriteLine("Updated");
+        }
+    }
+
     public class DeleteCommand : ICommand
     {
         public void Execute()
@@ -75,7 +87,25 @@ namespace ReminderTasks
     {
         public void Execute()
         {
-            TaskModel.Instance.Display();
+            Console.WriteLine("today/tomorrow/key/Enter(All)");
+            string value = Console.ReadLine();
+            if(value.Trim() == string.Empty)
+            {
+                TaskModel.Instance.Display(GetRemindersType.All);
+            }
+            else if(value.ToLower().Trim() == "today")
+            {
+                TaskModel.Instance.Display(GetRemindersType.Today);
+            }
+            else if (value.ToLower().Trim() == "tomorrow")
+            {
+                TaskModel.Instance.Display(GetRemindersType.Tomorrow);
+            }
+            else
+            {
+                TaskModel.Instance.Display(GetRemindersType.Key, Convert.ToInt32(value.Trim()));
+            }
+
         }
     }
     public class ShowHelpCommand : ICommand

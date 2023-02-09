@@ -9,9 +9,7 @@ namespace ReminderTasks
         private static string ShowTodoPath = @"Todo.txt";        
         private const string OperationCanceled = "Operation Canceled";
         private const string MainMethod = "Main Method";
-        private const string DoWorkMethod = "Do Work Method";
-        static Dictionary<int,string> ReminderItems = new Dictionary<int,string>();
-        static int DefaultShowReminderCountInSeconds = 15 * 60;
+        private const string DoWorkMethod = "Do Work Method";        
         static void Main(string[] args)
         {
             //CTL + C is the built-in cancellation for console apps;
@@ -56,25 +54,28 @@ namespace ReminderTasks
                     if (DateTime.Now >= item.Value.TimeToRun)
                     {
                         TaskModel.Instance.Update(item.Key, item.Value.Alias, item.Value.Link, item.Value.WhenToRun);
-                        if (!ReminderItems.ContainsKey(item.Key))
+                        if (!TaskModel.Instance.ReminderItems.ContainsKey(item.Key))
                         {
-                            ReminderItems.Add(item.Key, TaskModel.Instance.GetItemsAsText(GetItemsType.AliasLinkWithOnlyPassingKey, item.Key).Item1);
+                            TaskModel.Instance.ReminderItems.Add(item.Key, TaskModel.Instance.GetItemsAsText(GetItemsType.AliasLinkWithOnlyPassingKey, item.Key).Item1);
                         }
                         TaskModel.Instance.StartProcess(item.Value.Link);
                     }
                 }
-                DefaultShowReminderCountInSeconds--;
-                if(DefaultShowReminderCountInSeconds<=0)
+                TaskModel.Instance.DefaultShowReminderCountInSeconds--;
+                if(TaskModel.Instance.DefaultShowReminderCountInSeconds <=0)
                 {
                     string result = string.Empty;
-                    foreach (var item in ReminderItems)
+                    foreach (var item in TaskModel.Instance.ReminderItems)
                     {
                         result += item.Value + "\r\n";
                     }
-                    File.WriteAllText(ShowTodoPath, result);
-                    TaskModel.Instance.StartProcess(ShowTodoPath);
-                    DefaultShowReminderCountInSeconds = 15 * 60;
-                    ReminderItems.Clear();
+                    if (result.Trim() != string.Empty)
+                    {
+                        File.WriteAllText(ShowTodoPath, result);
+                        TaskModel.Instance.StartProcess(ShowTodoPath);
+                    }
+                    TaskModel.Instance.DefaultShowReminderCountInSeconds = TaskModel.Instance.ShowReminderFileInMins * 60;
+                    TaskModel.Instance.ReminderItems.Clear();
                 }
             }
         }

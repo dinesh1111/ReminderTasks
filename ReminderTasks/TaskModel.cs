@@ -13,7 +13,16 @@ namespace ReminderTasks
         All,
         AllWithPassingKey,
         AliasLinkWithOnlyPassingKey,
-        AliasLinkWhenToRun
+        AliasLinkWhenToRun,
+        TodayAliasLink,
+        TomorrowAliasLink,
+    }
+    public enum GetRemindersType
+    {
+        All,
+        Today,
+        Tomorrow,
+        Key
     }
     public sealed class TaskModel
     {
@@ -32,7 +41,9 @@ namespace ReminderTasks
         private const string DBFieldSeperator = ":";
         private static string ErrorLogPath = @"ErrorLog.txt";
         private static string AddMultiplePath = @"AddMultiple.txt";
-
+        public int ShowReminderFileInMins = 60;
+        public int DefaultShowReminderCountInSeconds = 0;
+        public Dictionary<int, string> ReminderItems = new Dictionary<int, string>();
         public int Key
         {
             get; private set;
@@ -90,6 +101,7 @@ namespace ReminderTasks
                             instance.whenToRunValidateStrings.Add("hour", 60);
                             instance.whenToRunValidateStrings.Add("min", 1);
                             instance.LoadFromDB();
+                            instance.SetShowReminderFileInMins();
                         }
                     }                    
                 }
@@ -97,6 +109,10 @@ namespace ReminderTasks
             }
         }
 
+        public void SetShowReminderFileInMins()
+        {
+            DefaultShowReminderCountInSeconds = TaskModel.Instance.ShowReminderFileInMins * 60;
+        }
         public string GetAliasName()
         {
             string aliasName = string.Empty;
@@ -334,15 +350,33 @@ namespace ReminderTasks
             }
         }
 
-        public void Display()
-        {
+        public void Display(GetRemindersType remindersType, int key=0)
+        {            
             if(Instance.DictTasks.Count ==0)
             {
                 Console.WriteLine(NoItemsToShow);
             }
-            else
+            else if(remindersType == GetRemindersType.All)
             {
                 (string, int) result = GetItemsAsText(GetItemsType.All);
+                Console.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
+                    result.Item2));
+            }
+            else if (remindersType == GetRemindersType.Today)
+            {
+                (string, int) result = GetItemsAsText(GetItemsType.TodayAliasLink);
+                Console.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
+                    result.Item2));
+            }
+            else if (remindersType == GetRemindersType.Tomorrow)
+            {
+                (string, int) result = GetItemsAsText(GetItemsType.TomorrowAliasLink);
+                Console.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
+                    result.Item2));
+            }
+            else if (remindersType == GetRemindersType.Key)
+            {
+                (string, int) result = GetItemsAsText(GetItemsType.AllWithPassingKey,key);
                 Console.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
                     result.Item2));
             }
@@ -356,6 +390,7 @@ namespace ReminderTasks
             Console.WriteLine("update");
             Console.WriteLine("delete/remove");
             Console.WriteLine("display");
+            Console.WriteLine("setdefaultreminderstime");
             Console.WriteLine("Press CTL+C to Terminate");            
         }
 
@@ -397,6 +432,7 @@ namespace ReminderTasks
                 }
                 else if(GetItemsType.AllWithPassingKey == ItemsType && dictKey == item.Key)
                 {
+                    totalCount = totalCount + 1;
                     Items += string.Format("{0}{1}{2}{3}", nameof(Key), DBFieldSeperator, item.Key, "\r\n");
                     Items += string.Format("{0}{1}{2}{3}", nameof(Alias), DBFieldSeperator, item.Value.Alias, "\r\n");
                     Items += string.Format("{0}{1}{2}{3}", nameof(Link), DBFieldSeperator, item.Value.Link, "\r\n");
@@ -407,6 +443,7 @@ namespace ReminderTasks
                 }
                 else if (GetItemsType.AliasLinkWhenToRun == ItemsType)
                 {
+                    totalCount = totalCount + 1;
                     Items += string.Format("{0}{1}{2}{3}", nameof(Alias), DBFieldSeperator, item.Value.Alias, "\r\n");
                     Items += string.Format("{0}{1}{2}{3}", nameof(Link), DBFieldSeperator, item.Value.Link, "\r\n");
                     Items += string.Format("{0}{1}{2}{3}", nameof(WhenToRun), DBFieldSeperator, item.Value.WhenToRun, "\r\n");                    
@@ -415,8 +452,44 @@ namespace ReminderTasks
                 }
                 else if (GetItemsType.AliasLinkWithOnlyPassingKey == ItemsType && dictKey==item.Key)
                 {
+                    totalCount = totalCount + 1;
                     Items += string.Format("{0}{1}", item.Value.Alias, "\r\n");
                     Items += string.Format("{0}{1}", item.Value.Link, "\r\n");
+                    Items += DBItemsDisplaySeperator;
+                    Items += "\r\n";
+                }
+                else if (GetItemsType.TodayAliasLink == ItemsType && (
+                    (item.Value.WhenToRun.Contains("min") || item.Value.WhenToRun.Contains("mins") ||
+                    item.Value.WhenToRun.Contains("hour") || item.Value.WhenToRun.Contains("hours")) ||
+                    Convert.ToDateTime(item.Value.TimeToRun.ToString().Contains("/") ? item.Value.TimeToRun.ToString() : DateTime.Now.ToString()).ToShortDateString() == DateTime.Now.ToShortDateString())
+                    )
+                {
+                    totalCount = totalCount + 1;
+                    Items += string.Format("{0}{1}", item.Value.Alias, "\r\n");
+                    Items += string.Format("{0}{1}", item.Value.Link, "\r\n");
+                    Items += DBItemsDisplaySeperator;
+                    Items += "\r\n";
+                }
+                else if (GetItemsType.TomorrowAliasLink == ItemsType && (
+                    (item.Value.WhenToRun.Contains("min") || item.Value.WhenToRun.Contains("mins") ||
+                    item.Value.WhenToRun.Contains("hour") || item.Value.WhenToRun.Contains("hours")) ||
+                    Convert.ToDateTime(item.Value.TimeToRun.ToString().Contains("/")? item.Value.TimeToRun.ToString():DateTime.Now.ToString()).ToShortDateString() == DateTime.Now.AddDays(1).ToShortDateString())
+                    )
+                {
+                    totalCount = totalCount + 1;
+                    Items += string.Format("{0}{1}", item.Value.Alias, "\r\n");
+                    Items += string.Format("{0}{1}", item.Value.Link, "\r\n");
+                    Items += DBItemsDisplaySeperator;
+                    Items += "\r\n";
+                }
+                else if (GetItemsType.AllWithPassingKey == ItemsType && dictKey == item.Key)
+                {
+                    totalCount = totalCount + 1;
+                    Items += string.Format("{0}{1}{2}{3}", nameof(Key), DBFieldSeperator, item.Key, "\r\n");
+                    Items += string.Format("{0}{1}{2}{3}", nameof(Alias), DBFieldSeperator, item.Value.Alias, "\r\n");
+                    Items += string.Format("{0}{1}{2}{3}", nameof(Link), DBFieldSeperator, item.Value.Link, "\r\n");
+                    Items += string.Format("{0}{1}{2}{3}", nameof(WhenToRun), DBFieldSeperator, item.Value.WhenToRun, "\r\n");
+                    Items += string.Format("{0}{1}{2}{3}", nameof(TimeToRun), DBFieldSeperator, item.Value.TimeToRun, "\r\n");
                     Items += DBItemsDisplaySeperator;
                     Items += "\r\n";
                 }
