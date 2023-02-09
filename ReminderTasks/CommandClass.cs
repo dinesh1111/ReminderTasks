@@ -72,6 +72,15 @@ namespace ReminderTasks
         }
     }
 
+    public class OpenCommand : ICommand
+    {
+        public void Execute()
+        {
+            string key = TaskModel.Instance.GetKeyUntilValidationSuccess();
+            TaskModel.Instance.StartProcess(TaskModel.Instance.DictTasks[Convert.ToInt32(key)].Link);            
+        }
+    }
+
     public class DeleteCommand : ICommand
     {
         public void Execute()

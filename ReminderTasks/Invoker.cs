@@ -29,6 +29,9 @@ namespace ReminderTasks
                 case "setdefaultreminderstime":
                     cmd = new SetDefaultRemindersTimeCommand();
                     break;
+                case "open":
+                    cmd = new OpenCommand();
+                    break;
                 default:
                     Console.WriteLine("Command is not correct");
                     cmd = new ShowHelpCommand();

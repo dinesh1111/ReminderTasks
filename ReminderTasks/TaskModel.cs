@@ -391,6 +391,7 @@ namespace ReminderTasks
             Console.WriteLine("delete/remove");
             Console.WriteLine("display");
             Console.WriteLine("setdefaultreminderstime");
+            Console.WriteLine("open");
             Console.WriteLine("Press CTL+C to Terminate");            
         }
 

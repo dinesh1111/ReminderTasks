@@ -17,3 +17,4 @@ C:\Rajesh\ReminderTasks\ReminderTasks\obj\Debug\net6.0\refint\ReminderTasks.dll
 C:\Rajesh\ReminderTasks\ReminderTasks\obj\Debug\net6.0\ReminderTasks.pdb
 C:\Rajesh\ReminderTasks\ReminderTasks\obj\Debug\net6.0\ReminderTasks.genruntimeconfig.cache
 C:\Rajesh\ReminderTasks\ReminderTasks\obj\Debug\net6.0\ref\ReminderTasks.dll
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Debug\net6.0\command-line_115191.ico
