@@ -29,9 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="AddMultiple.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="command-line_115191.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

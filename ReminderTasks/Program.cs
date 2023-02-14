@@ -25,7 +25,7 @@ namespace ReminderTasks
             }
             catch(OperationCanceledException ex)
             {
-                Console.WriteLine(OperationCanceled);
+                TaskModel.Instance.WriteLine(OperationCanceled);                
                 TaskModel.Instance.WriteToErrorLog(ex.Message, MainMethod);
             }
             catch (Exception ex)
@@ -56,7 +56,7 @@ namespace ReminderTasks
                         TaskModel.Instance.Update(item.Key, item.Value.Alias, item.Value.Link, item.Value.WhenToRun);
                         if (!TaskModel.Instance.ReminderItems.ContainsKey(item.Key))
                         {
-                            TaskModel.Instance.ReminderItems.Add(item.Key, TaskModel.Instance.GetItemsAsText(GetItemsType.AliasLinkWithOnlyPassingKey, item.Key).Item1);
+                            TaskModel.Instance.ReminderItems.Add(item.Key, TaskModel.Instance.GetItemsAsText(GetItemsType.AliasLinkWithOnlyPassingKey,string.Empty, item.Key).Item1);
                         }
                         TaskModel.Instance.StartProcess(item.Value.Link);
                     }
@@ -83,7 +83,7 @@ namespace ReminderTasks
         private static void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
         {
             e.Cancel = true;
-            Console.WriteLine("Cancelling....");
+            TaskModel.Instance.WriteLine("Cancelling....");            
             _cancelTokenSrc.Cancel();
         }
     }

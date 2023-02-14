@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +12,7 @@ namespace ReminderTasks
     public enum GetItemsType
     {
         All,
-        AllWithPassingKey,
+        AllWithPassingName,
         AliasLinkWithOnlyPassingKey,
         AliasLinkWhenToRun,
         TodayAliasLink,
@@ -22,12 +23,13 @@ namespace ReminderTasks
         All,
         Today,
         Tomorrow,
-        Key
+        Name
     }
     public sealed class TaskModel
     {
         private const string ValidationMessageWhenToRun = "WhenToRun should be like following 1 min, 2 mins, 1 hour, 2 hours, dateandtime";
         private const string ValidationMessageKeyNumber = "Key should be number";
+        private const string ValidationMessageMinsNumber = "Mins should be number";
         private const string ValidationMessageKeyNotExists = "Key not exists";
         private const string ValidationMessageAddKeyExists = "Key already exists";
         private const string NoItemsToShow = "No items to show";
@@ -36,8 +38,7 @@ namespace ReminderTasks
         private const string DBLoadingError = "DB Loading issue";
         private const string DBLoadedSuccessfully = "DB Loaded Successfully";
         private static string DBPath = @"DB.txt";
-        private const string DBItemsSeperator = "**********";
-        private const string DBItemsDisplaySeperator = "----------";
+        private const string DBItemsSeperator = "**********";        
         private const string DBFieldSeperator = ":";
         private static string ErrorLogPath = @"ErrorLog.txt";
         private static string AddMultiplePath = @"AddMultiple.txt";
@@ -112,24 +113,12 @@ namespace ReminderTasks
         public void SetShowReminderFileInMins()
         {
             DefaultShowReminderCountInSeconds = TaskModel.Instance.ShowReminderFileInMins * 60;
-        }
-        public string GetAliasName()
-        {
-            string aliasName = string.Empty;
-            Console.WriteLine("Enter Alias Name / Optional");
-            aliasName = Console.ReadLine();
-
-            if (aliasName.Trim() == string.Empty)
-            {
-                aliasName = "Default";
-            }
-            return aliasName;
-        }
+        }        
 
         public string GetAliasName(string alias)
         {
-            string aliasName = string.Empty;
-            Console.WriteLine("Enter Alias Name / Optional");
+            string aliasName = string.Empty;            
+            TaskModel.Instance.WriteLine("Enter Alias Name / Optional");
             aliasName = Console.ReadLine();
 
             if (aliasName.Trim() == string.Empty)
@@ -141,78 +130,128 @@ namespace ReminderTasks
 
         public string GetLink()
         {
-            Console.WriteLine("Enter Link/Path");
+            TaskModel.Instance.WriteLine("Enter Link/Path");
             string link = Console.ReadLine();
             return link;
         }        
 
         public string GetWhenToRunUntilValidationSuccess()
         {
-            string whenToRun = string.Empty;
-            Console.WriteLine("Enter When To Run(Required)");
+            string whenToRun = string.Empty;            
+            TaskModel.Instance.WriteLine("Enter When To Run(Required)");
             whenToRun = Console.ReadLine();
 
-            if (TaskModel.Instance.Validate(nameof(WhenToRun), whenToRun.Trim()) == string.Empty)
+            if (TaskModel.Instance.ValidateWhenToRun(whenToRun.Trim()) == string.Empty)
             {
-                whenToRun = GetWhenToRunUntilValidationSuccess();
+                whenToRun = GetWhenToRunUntilValidationSuccess();                
             }
-            return whenToRun;
+            return whenToRun;            
         }
 
-        public string GetKeyUntilValidationSuccess()
-        {
-            Console.WriteLine("Enter Key (Required)");
-            string key = Console.ReadLine();
-
-
-            if (TaskModel.Instance.Validate(nameof(Key), key.Trim()) == string.Empty)
+        public int GetKeyUntilValidationSuccess(string keyParam)
+        {            
+            bool exitFound = false;
+            if (TaskModel.Instance.ValidateKey(keyParam.Trim()) == -1)
             {
-                key = GetKeyUntilValidationSuccess();
-            }
-            return key;
-        }
+                TaskModel.Instance.WriteLine("Enter Key (Required) Enter Exit to come out");
+                keyParam = Console.ReadLine();
 
-        public string Validate(string propertyName, string propertyValue)
-        {
-            string result = string.Empty;
-
-            if(propertyName== nameof(WhenToRun))
-            {
-                if(ParseWhenToRunToTimeToRun(propertyValue) !=null)
+                if (keyParam.ToLower().Trim() == "exit")
                 {
-                    return propertyValue;
+                    exitFound = true;
                 }
                 else
                 {
-                    
-                    Console.WriteLine(ValidationMessageWhenToRun);
-                    result = string.Empty;
+                    keyParam = GetKeyUntilValidationSuccess(keyParam).ToString();
                 }
             }
-
-            if (propertyName == nameof(Key))
+            if (!exitFound)
             {
-                int key;
-                bool success = int.TryParse(propertyValue, out key);                
-                if(success)
+                return Convert.ToInt32(keyParam);
+            }
+            return -1;
+        }
+
+        public int GetMinsUntilValidationSuccess(string param)
+        {            
+            bool exitFound = false;
+            if (TaskModel.Instance.ValidateMins(param) == -1)
+            {
+                TaskModel.Instance.WriteLine("Enter mins (Required) Enter Exit to come out");
+                param = Console.ReadLine();
+                if (param.ToLower().Trim() == "exit")
+                {
+                    exitFound = true;                    
+                }
+                else
+                {
+                    param = GetMinsUntilValidationSuccess(param).ToString();
+                }
+            }
+            if (!exitFound)
+            {
+                return Convert.ToInt32(param);
+            }
+            return -1;
+        }
+
+        public int ValidateMins(string propertyValue)
+        {            
+            int mins;
+            bool success = int.TryParse(propertyValue, out mins);
+            if (success)
+            {
+                return mins;
+            }
+            else
+            {
+                TaskModel.Instance.WriteLine(ValidationMessageMinsNumber);                
+            }
+                
+            return -1;
+        }
+
+        public string ValidateWhenToRun(string propertyValue)
+        {
+            string result = string.Empty;
+           
+            if (ParseWhenToRunToTimeToRun(propertyValue) != null)
+            {
+                return propertyValue;
+            }
+            else
+            {
+
+                TaskModel.Instance.WriteLine(ValidationMessageWhenToRun);
+                result = string.Empty;
+            }           
+
+            return result;
+        }
+
+        public int ValidateKey(string propertyValue)
+        {            
+                
+            int key;
+            bool success = int.TryParse(propertyValue, out key);
+                
+            if (success)
                 {
                     if (Instance.DictTasks.ContainsKey(key))
                     {
-                        return propertyValue;
+                        return key;
                     }
                     else
                     {
-                        Console.WriteLine(ValidationMessageKeyNotExists);
-                        result = string.Empty;
+                        TaskModel.Instance.WriteLine(ValidationMessageKeyNotExists);                        
                     }
                 }
                 else
                 {
-                    Console.WriteLine(ValidationMessageKeyNumber);
-                    result = string.Empty;
+                    TaskModel.Instance.WriteLine(ValidationMessageKeyNumber);                    
                 }
-            }
-            return result;
+            
+            return -1;
         }
 
         private DateTime? ParseWhenToRunToTimeToRun(string whenToRun)
@@ -279,48 +318,10 @@ namespace ReminderTasks
             }
             else
             {
-                Console.WriteLine(ValidationMessageAddKeyExists);
+                TaskModel.Instance.WriteLine(ValidationMessageAddKeyExists);
                 return false;
             }
-        }
-
-        public void AddMultiple()
-        {
-            bool ErrorFound=false;
-            string ErrorItems = string.Empty;
-            Console.WriteLine(AddMultipleItemsMessage);
-            TaskModel.Instance.StartProcess(AddMultiplePath);
-            string readFromFile = File.ReadAllText(AddMultiplePath);
-            if(readFromFile.Trim()!=string.Empty)
-            {                
-                foreach (string item in readFromFile.Split("\r\n", StringSplitOptions.RemoveEmptyEntries))
-                {                    
-                    string alias = string.Empty;
-                    string link = string.Empty;
-                    string whenToRun = string.Empty;                    
-                    alias = item;
-                    Console.WriteLine("Adding Item " + alias);
-                    link = GetLink();
-                    whenToRun = GetWhenToRunUntilValidationSuccess();
-
-                    if (!Add(alias, link, whenToRun))
-                    {                        
-                        ErrorFound = true;
-                        ErrorItems += alias+"\r\n";
-                    }                    
-                }
-                if(!ErrorFound)
-                {
-                    File.WriteAllText(AddMultiplePath, string.Empty);
-                    Console.WriteLine("Added");
-                }
-                else
-                {
-                    Console.WriteLine(ErrorFoundWhileAddingMultiple);
-                    Console.WriteLine(ErrorItems);
-                }
-            }                        
-        }
+        }        
 
         public bool Update(int key, string alias, string link, string whenToRun)
         {                        
@@ -332,7 +333,7 @@ namespace ReminderTasks
             }
             else
             {
-                Console.WriteLine(ValidationMessageKeyNotExists);
+                TaskModel.Instance.WriteLine(ValidationMessageKeyNotExists);
                 return false;
             }
         }
@@ -346,53 +347,52 @@ namespace ReminderTasks
             }
             else
             {
-                Console.WriteLine(ValidationMessageKeyNotExists);                
+                TaskModel.Instance.WriteLine(ValidationMessageKeyNotExists);                
             }
         }
 
-        public void Display(GetRemindersType remindersType, int key=0)
+        public void Display(GetRemindersType remindersType, string name)
         {            
             if(Instance.DictTasks.Count ==0)
             {
-                Console.WriteLine(NoItemsToShow);
+                TaskModel.Instance.WriteLine(NoItemsToShow);
             }
             else if(remindersType == GetRemindersType.All)
             {
-                (string, int) result = GetItemsAsText(GetItemsType.All);
-                Console.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
+                (string, int) result = GetItemsAsText(GetItemsType.All,string.Empty);
+                TaskModel.Instance.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
                     result.Item2));
             }
             else if (remindersType == GetRemindersType.Today)
             {
-                (string, int) result = GetItemsAsText(GetItemsType.TodayAliasLink);
-                Console.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
+                (string, int) result = GetItemsAsText(GetItemsType.TodayAliasLink,string.Empty);
+                TaskModel.Instance.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
                     result.Item2));
             }
             else if (remindersType == GetRemindersType.Tomorrow)
             {
-                (string, int) result = GetItemsAsText(GetItemsType.TomorrowAliasLink);
-                Console.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
+                (string, int) result = GetItemsAsText(GetItemsType.TomorrowAliasLink,string.Empty);
+                TaskModel.Instance.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
                     result.Item2));
             }
-            else if (remindersType == GetRemindersType.Key)
+            else if (remindersType == GetRemindersType.Name)
             {
-                (string, int) result = GetItemsAsText(GetItemsType.AllWithPassingKey,key);
-                Console.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
+                (string, int) result = GetItemsAsText(GetItemsType.AllWithPassingName,name);
+                TaskModel.Instance.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
                     result.Item2));
             }
         }
 
         public void ShowHelpCommands()
         {
-            Console.WriteLine("Type commands followed by 'ENTER'");
-            Console.WriteLine("add");
-            Console.WriteLine("addmultiple");
-            Console.WriteLine("update");
-            Console.WriteLine("delete/remove");
-            Console.WriteLine("display");
-            Console.WriteLine("setdefaultreminderstime");
-            Console.WriteLine("open");
-            Console.WriteLine("Press CTL+C to Terminate");            
+            TaskModel.Instance.WriteLine("Type commands followed by 'ENTER'\r\n" +
+                "add {name}\r\n" +
+                "update {key}\r\n" +
+                "delete {key}\r\n" +
+                "display {today/tomorrow/name/all}\r\n" +
+                "setdefaultreminderstime {mins}\r\n" +
+                "open {key}\r\n" +
+                "Press CTL+C to Terminate");            
         }
 
         public int GetMaxKey(Dictionary<int,TaskModel> dictTasks)
@@ -410,11 +410,11 @@ namespace ReminderTasks
 
         public void WriteToDB()
         {
-            string items = GetItemsAsText(GetItemsType.AliasLinkWhenToRun).Item1;
+            string items = GetItemsAsText(GetItemsType.AliasLinkWhenToRun,string.Empty).Item1;
             File.WriteAllText(DBPath, items);
         }
 
-        public (string,int) GetItemsAsText(GetItemsType ItemsType,int dictKey=0)
+        public (string,int) GetItemsAsText(GetItemsType ItemsType,string name, int dictKey=0)
         {
             string Items = string.Empty;
             int totalCount = 0;
@@ -427,11 +427,10 @@ namespace ReminderTasks
                     Items += string.Format("{0}{1}{2}{3}", nameof(Alias), DBFieldSeperator, item.Value.Alias, "\r\n");
                     Items += string.Format("{0}{1}{2}{3}", nameof(Link), DBFieldSeperator, item.Value.Link, "\r\n");
                     Items += string.Format("{0}{1}{2}{3}", nameof(WhenToRun), DBFieldSeperator, item.Value.WhenToRun, "\r\n");
-                    Items += string.Format("{0}{1}{2}{3}", nameof(TimeToRun), DBFieldSeperator, item.Value.TimeToRun, "\r\n");
-                    Items += DBItemsDisplaySeperator;                    
+                    Items += string.Format("{0}{1}{2}{3}", nameof(TimeToRun), DBFieldSeperator, item.Value.TimeToRun, "\r\n");                    
                     Items += "\r\n";
                 }
-                else if(GetItemsType.AllWithPassingKey == ItemsType && dictKey == item.Key)
+                else if(GetItemsType.AllWithPassingName == ItemsType && item.Value.Alias.Contains(name))
                 {
                     totalCount = totalCount + 1;
                     Items += string.Format("{0}{1}{2}{3}", nameof(Key), DBFieldSeperator, item.Key, "\r\n");
@@ -439,7 +438,6 @@ namespace ReminderTasks
                     Items += string.Format("{0}{1}{2}{3}", nameof(Link), DBFieldSeperator, item.Value.Link, "\r\n");
                     Items += string.Format("{0}{1}{2}{3}", nameof(WhenToRun), DBFieldSeperator, item.Value.WhenToRun, "\r\n");
                     Items += string.Format("{0}{1}{2}{3}", nameof(TimeToRun), DBFieldSeperator, item.Value.TimeToRun, "\r\n");
-                    Items += DBItemsDisplaySeperator;
                     Items += "\r\n";
                 }
                 else if (GetItemsType.AliasLinkWhenToRun == ItemsType)
@@ -455,8 +453,10 @@ namespace ReminderTasks
                 {
                     totalCount = totalCount + 1;
                     Items += string.Format("{0}{1}", item.Value.Alias, "\r\n");
-                    Items += string.Format("{0}{1}", item.Value.Link, "\r\n");
-                    Items += DBItemsDisplaySeperator;
+                    if (item.Value.Link != string.Empty)
+                    {
+                        Items += string.Format("{0}{1}", item.Value.Link, "\r\n");
+                    }
                     Items += "\r\n";
                 }
                 else if (GetItemsType.TodayAliasLink == ItemsType && (
@@ -467,8 +467,9 @@ namespace ReminderTasks
                 {
                     totalCount = totalCount + 1;
                     Items += string.Format("{0}{1}", item.Value.Alias, "\r\n");
-                    Items += string.Format("{0}{1}", item.Value.Link, "\r\n");
-                    Items += DBItemsDisplaySeperator;
+                    if(item.Value.Link!=string.Empty) {
+                        Items += string.Format("{0}{1}", item.Value.Link, "\r\n");
+                    }                    
                     Items += "\r\n";
                 }
                 else if (GetItemsType.TomorrowAliasLink == ItemsType && (
@@ -479,19 +480,10 @@ namespace ReminderTasks
                 {
                     totalCount = totalCount + 1;
                     Items += string.Format("{0}{1}", item.Value.Alias, "\r\n");
-                    Items += string.Format("{0}{1}", item.Value.Link, "\r\n");
-                    Items += DBItemsDisplaySeperator;
-                    Items += "\r\n";
-                }
-                else if (GetItemsType.AllWithPassingKey == ItemsType && dictKey == item.Key)
-                {
-                    totalCount = totalCount + 1;
-                    Items += string.Format("{0}{1}{2}{3}", nameof(Key), DBFieldSeperator, item.Key, "\r\n");
-                    Items += string.Format("{0}{1}{2}{3}", nameof(Alias), DBFieldSeperator, item.Value.Alias, "\r\n");
-                    Items += string.Format("{0}{1}{2}{3}", nameof(Link), DBFieldSeperator, item.Value.Link, "\r\n");
-                    Items += string.Format("{0}{1}{2}{3}", nameof(WhenToRun), DBFieldSeperator, item.Value.WhenToRun, "\r\n");
-                    Items += string.Format("{0}{1}{2}{3}", nameof(TimeToRun), DBFieldSeperator, item.Value.TimeToRun, "\r\n");
-                    Items += DBItemsDisplaySeperator;
+                    if (item.Value.Link != string.Empty)
+                    {
+                        Items += string.Format("{0}{1}", item.Value.Link, "\r\n");
+                    }
                     Items += "\r\n";
                 }
             }
@@ -529,7 +521,7 @@ namespace ReminderTasks
                             }
                             else
                             {
-                                Console.WriteLine(DBLoadingError + alias + link + whenToRun);
+                                TaskModel.Instance.WriteLine(DBLoadingError + alias + link + whenToRun);
                                 DBIssueFound = true; ;
                             }  
                         }
@@ -547,7 +539,7 @@ namespace ReminderTasks
                     }
                     if (!DBIssueFound)
                     {
-                        Console.WriteLine(DBLoadedSuccessfully);
+                        TaskModel.Instance.WriteLine(DBLoadedSuccessfully);
                     }
                     File.WriteAllText(DBPath, Items);
                 }
@@ -563,6 +555,13 @@ namespace ReminderTasks
             string fileText = File.ReadAllText(ErrorLogPath);
             fileText += string.Format("{0}{1}{2}{3}{4}{5}","\r\n" , "Message: ", message , "\r\n" ,"From Method: ", fromMethod);
             File.WriteAllText(ErrorLogPath, fileText);
+        }
+
+        public void WriteLine(string value)
+        {
+            Console.WriteLine("*****************************");
+            Console.WriteLine(value);
+            Console.WriteLine("*****************************");
         }
     }
 }

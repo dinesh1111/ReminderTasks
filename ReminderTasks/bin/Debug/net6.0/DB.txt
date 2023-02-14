@@ -1,10 +1,10 @@
-﻿Alias:passportrenewal 112023
+Alias:passportrenewal 112023
 Link:
-WhenToRun:1 min
+WhenToRun:15 min
 **********
 Alias:feb18 maha sivaratri
 Link:
-WhenToRun:1 min
+WhenToRun:15 min
 **********
 Alias:feb20 washington birthday
 Link:
@@ -50,7 +50,11 @@ Alias:feb 18th picture day before 30 mins
 Link:
 WhenToRun:1 min
 **********
-Alias:after two days rental aggrement
+Alias:testing now
 Link:
-WhenToRun:1 min
+WhenToRun:15 min
+**********
+Alias:test
+Link:www.google.com
+WhenToRun:15 min
 **********

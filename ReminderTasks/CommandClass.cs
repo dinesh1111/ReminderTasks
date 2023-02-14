@@ -12,107 +12,151 @@ namespace ReminderTasks
     }
     public class AddCommand : ICommand
     {
+        private string parameter = string.Empty;
+        public AddCommand(string param)
+        {
+            parameter = param.Trim();
+        }
         public void Execute()
         {
             string aliasName = string.Empty;
             string whenToRun = string.Empty;
             string link = string.Empty;
 
-            aliasName = TaskModel.Instance.GetAliasName();
+            aliasName = parameter;
             link = TaskModel.Instance.GetLink();
             whenToRun = TaskModel.Instance.GetWhenToRunUntilValidationSuccess();
 
             if (TaskModel.Instance.Add(aliasName, link, whenToRun))
             {
-                Console.WriteLine("Added");
+                TaskModel.Instance.WriteLine("Added");
             }
         }
-    }
-
-    public class AddMultipleCommand : ICommand
-    {
-        public void Execute()
-        {
-            TaskModel.Instance.AddMultiple();
-        }
-    }
+    }    
 
     public class UpdateCommand : ICommand
     {
+        private string parameter = string.Empty;
+        public UpdateCommand(string param)
+        {
+            parameter = param.Trim();
+        }
         public void Execute()
-        {            
-            string key = string.Empty;
+        {                        
             string alias = string.Empty;
             string link = string.Empty;
-            string whenToRun = string.Empty;            
+            string whenToRun = string.Empty;
 
-            key = TaskModel.Instance.GetKeyUntilValidationSuccess();
-            int keyValue = Convert.ToInt32(key);
-            Console.WriteLine(TaskModel.Instance.GetItemsAsText(GetItemsType.AllWithPassingKey, keyValue).Item1);
-            alias = TaskModel.Instance.GetAliasName(TaskModel.Instance.DictTasks[keyValue].Alias);
-            link = TaskModel.Instance.GetLink();
-            whenToRun = TaskModel.Instance.GetWhenToRunUntilValidationSuccess();
-
-            if (TaskModel.Instance.Update(keyValue, alias,link,whenToRun))
+            int key = TaskModel.Instance.GetKeyUntilValidationSuccess(parameter);
+            if(key != -1)
             {
-                  Console.WriteLine("Updated");
+                alias = TaskModel.Instance.GetAliasName(TaskModel.Instance.DictTasks[key].Alias);
+                link = TaskModel.Instance.GetLink();
+                whenToRun = TaskModel.Instance.GetWhenToRunUntilValidationSuccess();
+
+                if (TaskModel.Instance.Update(key, alias, link, whenToRun))
+                    {
+                    TaskModel.Instance.WriteLine("Updated " + alias);                    
+                    }
+            }
+            else
+            {
+                TaskModel.Instance.WriteLine("Exited");
             }
         }
     }
 
     public class SetDefaultRemindersTimeCommand : ICommand
     {
+        private string parameter = string.Empty;
+        public SetDefaultRemindersTimeCommand(string param)
+        {
+            parameter = param.Trim();
+        }
         public void Execute()
         {
-            Console.WriteLine("Enter in mins for example 15/30/...");
-            string showMins = Console.ReadLine();
-            TaskModel.Instance.ShowReminderFileInMins = Convert.ToInt32(showMins);
-            TaskModel.Instance.SetShowReminderFileInMins();
-            Console.WriteLine("Updated");
+            int mins;
+            mins = TaskModel.Instance.GetMinsUntilValidationSuccess(parameter);
+            if (mins != -1)
+            {
+                int minValue = Convert.ToInt32(mins);
+                TaskModel.Instance.ShowReminderFileInMins = Convert.ToInt32(minValue);
+                TaskModel.Instance.SetShowReminderFileInMins();
+                TaskModel.Instance.WriteLine("Updated");
+            }
+            else
+            {
+                TaskModel.Instance.WriteLine("Exited");
+            }            
         }
     }
 
     public class OpenCommand : ICommand
     {
+        private string parameter = string.Empty;
+        public OpenCommand(string param)
+        {
+            parameter = param.Trim();
+        }
         public void Execute()
         {
-            string key = TaskModel.Instance.GetKeyUntilValidationSuccess();
-            TaskModel.Instance.StartProcess(TaskModel.Instance.DictTasks[Convert.ToInt32(key)].Link);            
+            int key = TaskModel.Instance.GetKeyUntilValidationSuccess(parameter);
+            if(key!= -1)
+            {
+                TaskModel.Instance.StartProcess(TaskModel.Instance.DictTasks[Convert.ToInt32(key)].Link);
+            }
+            else
+            {
+                TaskModel.Instance.WriteLine("Exited");
+            }
         }
     }
 
     public class DeleteCommand : ICommand
     {
+        private string parameter = string.Empty;
+        public DeleteCommand(string param)
+        {
+            parameter = param.Trim();
+        }
         public void Execute()
         {
-            string key = string.Empty;            
-
-            key = TaskModel.Instance.GetKeyUntilValidationSuccess();
-            TaskModel.Instance.Delete(Convert.ToInt32(key));
-            Console.WriteLine("Deleted");             
+            int key = TaskModel.Instance.GetKeyUntilValidationSuccess(parameter);
+            if (key != -1)
+            {
+                TaskModel.Instance.WriteLine("Deleted " + TaskModel.Instance.DictTasks[key].Alias);
+                TaskModel.Instance.Delete(key);                
+            }
+            else
+            {
+                TaskModel.Instance.WriteLine("Exited");
+            }
         }
     }
     public class DisplayCommand : ICommand
     {
-        public void Execute()
+        private string parameter = string.Empty;
+        public DisplayCommand(string param)
         {
-            Console.WriteLine("today/tomorrow/key/Enter(All)");
-            string value = Console.ReadLine();
-            if(value.Trim() == string.Empty)
+            parameter = param.Trim();
+        }
+        public void Execute()
+        {            
+            if(parameter == "all")
             {
-                TaskModel.Instance.Display(GetRemindersType.All);
+                TaskModel.Instance.Display(GetRemindersType.All,string.Empty);
             }
-            else if(value.ToLower().Trim() == "today")
+            else if (parameter.ToLower() == "today")
             {
-                TaskModel.Instance.Display(GetRemindersType.Today);
+                TaskModel.Instance.Display(GetRemindersType.Today,string.Empty);
             }
-            else if (value.ToLower().Trim() == "tomorrow")
+            else if (parameter.ToLower() == "tomorrow")
             {
-                TaskModel.Instance.Display(GetRemindersType.Tomorrow);
+                TaskModel.Instance.Display(GetRemindersType.Tomorrow,string.Empty);
             }
             else
-            {
-                TaskModel.Instance.Display(GetRemindersType.Key, Convert.ToInt32(value.Trim()));
+            {                
+                TaskModel.Instance.Display(GetRemindersType.Name,parameter);
             }
 
         }

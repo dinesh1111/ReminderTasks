@@ -7,33 +7,41 @@ namespace ReminderTasks
         public ICommand GetCommand(string action)
         {
             ICommand cmd = null;
-            switch (action)
+            string[] splitActions = action.Split(' ',StringSplitOptions.RemoveEmptyEntries);
+            string command = string.Empty;
+            string parameter = string.Empty;
+            if (splitActions.Length > 1)
+            {
+                command = splitActions[0];
+                foreach (string item in splitActions)
+                {
+                    parameter += item + " ";
+                }
+                parameter = parameter.Replace(command, string.Empty).Trim();
+            }
+            
+            switch (command)
             {
                 case "add":
-                    cmd = new AddCommand();
-                    break;
-                case "addmultiple":
-                    cmd = new AddMultipleCommand();
+                    cmd = new AddCommand(parameter);
                     break;
                 case "update":
-                    cmd = new UpdateCommand();
+                    cmd = new UpdateCommand(parameter);
                     break;
                 case "delete":
-                case "remove":
-                    cmd = new DeleteCommand();
+                    cmd = new DeleteCommand(parameter);
                     break;
-                case "display":
-                case "list":
-                    cmd = new DisplayCommand();
+                case "display":                
+                    cmd = new DisplayCommand(parameter);
                     break;
                 case "setdefaultreminderstime":
-                    cmd = new SetDefaultRemindersTimeCommand();
+                    cmd = new SetDefaultRemindersTimeCommand(parameter);
                     break;
                 case "open":
-                    cmd = new OpenCommand();
-                    break;
+                    cmd = new OpenCommand(parameter);
+                    break;               
                 default:
-                    Console.WriteLine("Command is not correct");
+                    TaskModel.Instance.WriteLine("Command is not correct");                    
                     cmd = new ShowHelpCommand();
                     break;
 
