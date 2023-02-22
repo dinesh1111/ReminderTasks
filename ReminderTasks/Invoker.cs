@@ -7,7 +7,12 @@ namespace ReminderTasks
         public ICommand GetCommand(string action)
         {
             ICommand cmd = null;
-            string[] splitActions = action.Split(' ',StringSplitOptions.RemoveEmptyEntries);
+            Dictionary<string, string> CommandsExcludeParam = new Dictionary<string, string>()
+            {
+                {"deletecompleted","deletecompleted" },
+                {"updateall","updateall" }
+            };
+            string[] splitActions = action?.Split(' ',StringSplitOptions.RemoveEmptyEntries);
             string command = string.Empty;
             string parameter = string.Empty;
             if (splitActions.Length > 1)
@@ -18,6 +23,10 @@ namespace ReminderTasks
                     parameter += item + " ";
                 }
                 parameter = parameter.Replace(command, string.Empty).Trim();
+            }
+            else if(splitActions.Length == 1 && CommandsExcludeParam.ContainsKey(splitActions[0]))
+            {
+                command = splitActions[0];                
             }
             
             switch (command)
@@ -39,7 +48,16 @@ namespace ReminderTasks
                     break;
                 case "open":
                     cmd = new OpenCommand(parameter);
-                    break;               
+                    break;
+                case "quickadd":
+                    cmd = new AddQickCommand(parameter);
+                    break;
+                case "deletecompleted":
+                    cmd = new DeleteCompleteCommand();
+                    break;
+                case "updateall":
+                    cmd = new UpdateAllCommand();
+                    break;
                 default:
                     TaskModel.Instance.WriteLine("Command is not correct");                    
                     cmd = new ShowHelpCommand();

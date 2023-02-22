@@ -12,7 +12,7 @@ namespace ReminderTasks
     public enum GetItemsType
     {
         All,
-        AllWithPassingName,
+        AllWithPassingText,
         AliasLinkWithOnlyPassingKey,
         AliasLinkWhenToRun,
         TodayAliasLink,
@@ -97,6 +97,8 @@ namespace ReminderTasks
                         if (instance == null)
                         {
                             instance = new TaskModel();
+                            instance.whenToRunValidateStrings.Add("days", 1440);
+                            instance.whenToRunValidateStrings.Add("day", 1440);
                             instance.whenToRunValidateStrings.Add("hours", 60);
                             instance.whenToRunValidateStrings.Add("mins", 1);
                             instance.whenToRunValidateStrings.Add("hour", 60);
@@ -351,7 +353,7 @@ namespace ReminderTasks
             }
         }
 
-        public void Display(GetRemindersType remindersType, string name)
+        public void Display(GetRemindersType remindersType, string text)
         {            
             if(Instance.DictTasks.Count ==0)
             {
@@ -377,7 +379,7 @@ namespace ReminderTasks
             }
             else if (remindersType == GetRemindersType.Name)
             {
-                (string, int) result = GetItemsAsText(GetItemsType.AllWithPassingName,name);
+                (string, int) result = GetItemsAsText(GetItemsType.AllWithPassingText,text);
                 TaskModel.Instance.WriteLine(string.Format("{0}{1}{2}", result.Item1, "\r\nTotal Items: ",
                     result.Item2));
             }
@@ -387,11 +389,14 @@ namespace ReminderTasks
         {
             TaskModel.Instance.WriteLine("Type commands followed by 'ENTER'\r\n" +
                 "add {name}\r\n" +
+                "quickadd {name}\r\n" +
                 "update {key}\r\n" +
                 "delete {key}\r\n" +
                 "display {today/tomorrow/name/all}\r\n" +
                 "setdefaultreminderstime {mins}\r\n" +
                 "open {key}\r\n" +
+                "deletecompleted\r\n" +
+                "updateall\r\n" +
                 "Press CTL+C to Terminate");            
         }
 
@@ -414,7 +419,7 @@ namespace ReminderTasks
             File.WriteAllText(DBPath, items);
         }
 
-        public (string,int) GetItemsAsText(GetItemsType ItemsType,string name, int dictKey=0)
+        public (string,int) GetItemsAsText(GetItemsType ItemsType,string text, int dictKey=0)
         {
             string Items = string.Empty;
             int totalCount = 0;
@@ -430,7 +435,7 @@ namespace ReminderTasks
                     Items += string.Format("{0}{1}{2}{3}", nameof(TimeToRun), DBFieldSeperator, item.Value.TimeToRun, "\r\n");                    
                     Items += "\r\n";
                 }
-                else if(GetItemsType.AllWithPassingName == ItemsType && item.Value.Alias.Contains(name))
+                else if(GetItemsType.AllWithPassingText == ItemsType && (item.Value.Alias.ToLower().Contains(text.ToLower())|| item.Value.Link.ToLower().Contains(text.ToLower())))
                 {
                     totalCount = totalCount + 1;
                     Items += string.Format("{0}{1}{2}{3}", nameof(Key), DBFieldSeperator, item.Key, "\r\n");

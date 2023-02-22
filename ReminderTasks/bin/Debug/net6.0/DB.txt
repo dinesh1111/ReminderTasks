@@ -1,26 +1,10 @@
-Alias:passportrenewal 112023
-Link:
-WhenToRun:15 min
-**********
-Alias:feb18 maha sivaratri
-Link:
-WhenToRun:15 min
-**********
-Alias:feb20 washington birthday
-Link:
-WhenToRun:1 min
-**********
-Alias:hair cut
-Link:
-WhenToRun:1 min
-**********
 Alias:car clean
 Link:
-WhenToRun:1 min
+WhenToRun:10 days
 **********
 Alias:alanza rental 30th
 Link:
-WhenToRun:1 min
+WhenToRun:1 day
 **********
 Alias:challa mar2 to mar6
 Link:
@@ -45,16 +29,4 @@ WhenToRun:1 min
 Alias:shopping screenguardbulb, soaps
 Link:
 WhenToRun:1 min
-**********
-Alias:feb 18th picture day before 30 mins
-Link:
-WhenToRun:1 min
-**********
-Alias:testing now
-Link:
-WhenToRun:15 min
-**********
-Alias:test
-Link:www.google.com
-WhenToRun:15 min
 **********

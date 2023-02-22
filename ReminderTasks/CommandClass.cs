@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http.Headers;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -32,7 +34,29 @@ namespace ReminderTasks
                 TaskModel.Instance.WriteLine("Added");
             }
         }
-    }    
+    }
+    public class AddQickCommand : ICommand
+    {
+        private string parameter = string.Empty;
+        public AddQickCommand(string param)
+        {
+            parameter = param.Trim();
+        }
+        public void Execute()
+        {
+            string aliasName = string.Empty;
+            string whenToRun = string.Empty;
+            string link = string.Empty;
+
+            aliasName = parameter;            
+            whenToRun = "15 min";
+
+            if (TaskModel.Instance.Add(aliasName, link, whenToRun))
+            {
+                TaskModel.Instance.WriteLine("Added as 15 min reminder.");
+            }
+        }
+    }
 
     public class UpdateCommand : ICommand
     {
@@ -63,6 +87,69 @@ namespace ReminderTasks
             {
                 TaskModel.Instance.WriteLine("Exited");
             }
+        }
+    }
+
+    public class DeleteCompleteCommand : ICommand
+    {        
+        public DeleteCompleteCommand()
+        {
+            
+        }
+        public void Execute()
+        {
+            foreach (KeyValuePair<int,TaskModel> item in TaskModel.Instance.DictTasks)
+            {
+                TaskModel.Instance.WriteLine("Do you want to delete " + item.Value.Alias + "\r\n" + (item.Value.Link!=""?item.Value.Link + "\r\n":string.Empty) + "Type yes(y) Enter, Enter key(No), Exit to come out");
+                string? input = Console.ReadLine();
+                if (input?.ToLower() == "yes" || input?.ToLower() == "y")
+                {
+                    TaskModel.Instance.Delete(item.Key);
+                    TaskModel.Instance.WriteLine("Deleted " + item.Value.Alias);
+                }
+                else if(input?.ToLower() == "exit")
+                {
+                    break;
+                }
+            }
+            Console.WriteLine("Mark Completed");
+        }            
+    }
+
+    public class UpdateAllCommand : ICommand
+    {
+        public UpdateAllCommand()
+        {
+
+        }
+        public void Execute()
+        {
+            foreach (KeyValuePair<int, TaskModel> item in TaskModel.Instance.DictTasks)
+            {
+                TaskModel.Instance.WriteLine("Do you want to update " + item.Value.Alias + "\r\n" + (item.Value.Link != "" ? item.Value.Link + "\r\n" : string.Empty) + "Type yes(y) Enter, Enter key(No), Exit to come out");
+
+                string? input = Console.ReadLine();
+                if (input?.ToLower() == "yes" || input?.ToLower() == "y")
+                {
+                    string alias = string.Empty;
+                    string link = string.Empty;
+                    string whenToRun = string.Empty;
+
+                    alias = TaskModel.Instance.GetAliasName(TaskModel.Instance.DictTasks[item.Key].Alias);
+                    link = TaskModel.Instance.GetLink();
+                    whenToRun = TaskModel.Instance.GetWhenToRunUntilValidationSuccess();
+
+                    if (TaskModel.Instance.Update(item.Key, alias, link, whenToRun))
+                    {
+                        TaskModel.Instance.WriteLine("Updated " + alias);
+                    }                    
+                }
+                else if (input?.ToLower() == "exit")
+                {
+                    break;
+                }                     
+            }
+            Console.WriteLine("Update all completed");
         }
     }
 
