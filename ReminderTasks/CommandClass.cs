@@ -139,7 +139,7 @@ namespace ReminderTasks
         }
         public void Execute()
         {
-            TaskViewModel.Instance.Pause(parameter);        
+            TaskViewModel.Instance.ApplyPause(parameter);        
         }
     }
 
