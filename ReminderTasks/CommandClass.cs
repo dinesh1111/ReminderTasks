@@ -14,7 +14,7 @@ namespace ReminderTasks
     }
     public class AddCommand : ICommand
     {
-        private string parameter = string.Empty;
+        public string parameter = string.Empty;
         public AddCommand(string param)
         {
             parameter = param.Trim();
@@ -26,18 +26,18 @@ namespace ReminderTasks
             string link = string.Empty;
 
             aliasName = parameter;
-            link = TaskModel.Instance.GetLink();
-            whenToRun = TaskModel.Instance.GetWhenToRunUntilValidationSuccess();
+            link = TaskViewModel.Instance.GetLink();
+            whenToRun = TaskViewModel.Instance.GetWhenToRunUntilValidationSuccess();
 
-            if (TaskModel.Instance.Add(aliasName, link, whenToRun))
+            if (TaskViewModel.Instance.Add(aliasName, link, whenToRun))
             {
-                TaskModel.Instance.WriteLine("Added");
+                TaskViewModel.Instance.WriteLine("Added");
             }
         }
     }
     public class AddQickCommand : ICommand
     {
-        private string parameter = string.Empty;
+        public string parameter = string.Empty;
         public AddQickCommand(string param)
         {
             parameter = param.Trim();
@@ -51,41 +51,55 @@ namespace ReminderTasks
             aliasName = parameter;            
             whenToRun = "15 min";
 
-            if (TaskModel.Instance.Add(aliasName, link, whenToRun))
+            if (TaskViewModel.Instance.Add(aliasName, link, whenToRun))
             {
-                TaskModel.Instance.WriteLine("Added as 15 min reminder.");
+                TaskViewModel.Instance.WriteLine("Added as 15 min reminder.");
             }
         }
     }
 
     public class UpdateCommand : ICommand
     {
-        private string parameter = string.Empty;
+        public string parameter = string.Empty;
         public UpdateCommand(string param)
         {
             parameter = param.Trim();
         }
         public void Execute()
-        {                        
-            string alias = string.Empty;
-            string link = string.Empty;
-            string whenToRun = string.Empty;
-
-            int key = TaskModel.Instance.GetKeyUntilValidationSuccess(parameter);
-            if(key != -1)
+        {
+            string key = TaskViewModel.Instance.GetKeyUntilValidationSuccess(parameter);
+            
+            if (key != string.Empty)
             {
-                alias = TaskModel.Instance.GetAliasName(TaskModel.Instance.DictTasks[key].Alias);
-                link = TaskModel.Instance.GetLink();
-                whenToRun = TaskModel.Instance.GetWhenToRunUntilValidationSuccess();
-
-                if (TaskModel.Instance.Update(key, alias, link, whenToRun))
-                    {
-                    TaskModel.Instance.WriteLine("Updated " + alias);                    
-                    }
+                string alias = TaskViewModel.Instance.DictTasks[key].Alias;
+                string link = TaskViewModel.Instance.DictTasks[key].Link;
+                string whenToRun = TaskViewModel.Instance.DictTasks[key].WhenToRun;
+                Console.WriteLine("What you would like to update(alias/link/whentorun)?");
+                string input=Console.ReadLine();
+                if(input.ToLower().Trim() == "alias")
+                {
+                    alias = TaskViewModel.Instance.GetAliasName(TaskViewModel.Instance.DictTasks[key].Alias);
+                }
+                else if(input.ToLower().Trim() == "link")
+                {
+                    link = TaskViewModel.Instance.GetLink();
+                }
+                else if(input.ToLower().Trim() == "whentorun")
+                {
+                    whenToRun = TaskViewModel.Instance.GetWhenToRunUntilValidationSuccess();
+                }
+                else
+                {
+                    Console.WriteLine("No selection");
+                }                                
+                
+                TaskViewModel.Instance.Add(alias, link, whenToRun);
+                TaskViewModel.Instance.Delete(key);                
+                TaskViewModel.Instance.WriteLine("Updated " + alias);
             }
             else
             {
-                TaskModel.Instance.WriteLine("Exited");
+                TaskViewModel.Instance.WriteLine("Key is required");
             }
         }
     }
@@ -98,14 +112,14 @@ namespace ReminderTasks
         }
         public void Execute()
         {
-            foreach (KeyValuePair<int,TaskModel> item in TaskModel.Instance.DictTasks)
+            foreach (KeyValuePair<string,TaskModel> item in TaskViewModel.Instance.DictTasks)
             {
-                TaskModel.Instance.WriteLine("Do you want to delete " + item.Value.Alias + "\r\n" + (item.Value.Link!=""?item.Value.Link + "\r\n":string.Empty) + "Type yes(y) Enter, Enter key(No), Exit to come out");
+                TaskViewModel.Instance.WriteLine("Do you want to delete " + item.Value.Alias + "\r\n" + (item.Value.Link!=""?item.Value.Link + "\r\n":string.Empty) + "Type yes(y) Enter, Enter key(No), Exit to come out");
                 string? input = Console.ReadLine();
                 if (input?.ToLower() == "yes" || input?.ToLower() == "y")
                 {
-                    TaskModel.Instance.Delete(item.Key);
-                    TaskModel.Instance.WriteLine("Deleted " + item.Value.Alias);
+                    TaskViewModel.Instance.Delete(item.Key);
+                    TaskViewModel.Instance.WriteLine("Deleted " + item.Value.Alias);
                 }
                 else if(input?.ToLower() == "exit")
                 {
@@ -114,115 +128,66 @@ namespace ReminderTasks
             }
             Console.WriteLine("Mark Completed");
         }            
-    }
+    }    
 
-    public class UpdateAllCommand : ICommand
+    public class PauseCommand : ICommand
     {
-        public UpdateAllCommand()
-        {
-
-        }
-        public void Execute()
-        {
-            foreach (KeyValuePair<int, TaskModel> item in TaskModel.Instance.DictTasks)
-            {
-                TaskModel.Instance.WriteLine("Do you want to update " + item.Value.Alias + "\r\n" + (item.Value.Link != "" ? item.Value.Link + "\r\n" : string.Empty) + "Type yes(y) Enter, Enter key(No), Exit to come out");
-
-                string? input = Console.ReadLine();
-                if (input?.ToLower() == "yes" || input?.ToLower() == "y")
-                {
-                    string alias = string.Empty;
-                    string link = string.Empty;
-                    string whenToRun = string.Empty;
-
-                    alias = TaskModel.Instance.GetAliasName(TaskModel.Instance.DictTasks[item.Key].Alias);
-                    link = TaskModel.Instance.GetLink();
-                    whenToRun = TaskModel.Instance.GetWhenToRunUntilValidationSuccess();
-
-                    if (TaskModel.Instance.Update(item.Key, alias, link, whenToRun))
-                    {
-                        TaskModel.Instance.WriteLine("Updated " + alias);
-                    }                    
-                }
-                else if (input?.ToLower() == "exit")
-                {
-                    break;
-                }                     
-            }
-            Console.WriteLine("Update all completed");
-        }
-    }
-
-    public class SetDefaultRemindersTimeCommand : ICommand
-    {
-        private string parameter = string.Empty;
-        public SetDefaultRemindersTimeCommand(string param)
+        public string parameter = string.Empty;
+        public PauseCommand(string param)
         {
             parameter = param.Trim();
         }
         public void Execute()
         {
-            int mins;
-            mins = TaskModel.Instance.GetMinsUntilValidationSuccess(parameter);
-            if (mins != -1)
-            {
-                int minValue = Convert.ToInt32(mins);
-                TaskModel.Instance.ShowReminderFileInMins = Convert.ToInt32(minValue);
-                TaskModel.Instance.SetShowReminderFileInMins();
-                TaskModel.Instance.WriteLine("Updated");
-            }
-            else
-            {
-                TaskModel.Instance.WriteLine("Exited");
-            }            
+            TaskViewModel.Instance.Pause(parameter);        
         }
     }
 
     public class OpenCommand : ICommand
     {
-        private string parameter = string.Empty;
+        public string parameter = string.Empty;
         public OpenCommand(string param)
         {
             parameter = param.Trim();
         }
         public void Execute()
         {
-            int key = TaskModel.Instance.GetKeyUntilValidationSuccess(parameter);
-            if(key!= -1)
+            string key = TaskViewModel.Instance.GetKeyUntilValidationSuccess(parameter);
+            if(key!= string.Empty)
             {
-                TaskModel.Instance.StartProcess(TaskModel.Instance.DictTasks[Convert.ToInt32(key)].Link);
+                TaskViewModel.Instance.StartProcess(TaskViewModel.Instance.DictTasks[key].Link);
             }
             else
             {
-                TaskModel.Instance.WriteLine("Exited");
+                TaskViewModel.Instance.WriteLine("Exited");
             }
         }
     }
 
     public class DeleteCommand : ICommand
     {
-        private string parameter = string.Empty;
+        public string parameter = string.Empty;
         public DeleteCommand(string param)
         {
             parameter = param.Trim();
         }
         public void Execute()
         {
-            int key = TaskModel.Instance.GetKeyUntilValidationSuccess(parameter);
-            if (key != -1)
+            string key = TaskViewModel.Instance.GetKeyUntilValidationSuccess(parameter);
+            if (key != string.Empty)
             {
-                TaskModel.Instance.WriteLine("Deleted " + TaskModel.Instance.DictTasks[key].Alias);
-                TaskModel.Instance.Delete(key);                
+                TaskViewModel.Instance.WriteLine("Deleted " + TaskViewModel.Instance.DictTasks[key].Alias);
+                TaskViewModel.Instance.Delete(key);                
             }
             else
             {
-                TaskModel.Instance.WriteLine("Exited");
+                TaskViewModel.Instance.WriteLine("Exited");
             }
         }
     }
     public class DisplayCommand : ICommand
     {
-        private string parameter = string.Empty;
+        public string parameter = string.Empty;
         public DisplayCommand(string param)
         {
             parameter = param.Trim();
@@ -231,19 +196,19 @@ namespace ReminderTasks
         {            
             if(parameter == "all")
             {
-                TaskModel.Instance.Display(GetRemindersType.All,string.Empty);
+                TaskViewModel.Instance.Display(GetRemindersType.All,string.Empty);
             }
             else if (parameter.ToLower() == "today")
             {
-                TaskModel.Instance.Display(GetRemindersType.Today,string.Empty);
+                TaskViewModel.Instance.Display(GetRemindersType.Today,string.Empty);
             }
             else if (parameter.ToLower() == "tomorrow")
             {
-                TaskModel.Instance.Display(GetRemindersType.Tomorrow,string.Empty);
+                TaskViewModel.Instance.Display(GetRemindersType.Tomorrow,string.Empty);
             }
             else
             {                
-                TaskModel.Instance.Display(GetRemindersType.Name,parameter);
+                TaskViewModel.Instance.Display(GetRemindersType.Name,parameter);
             }
 
         }
@@ -252,7 +217,7 @@ namespace ReminderTasks
     {
         public void Execute()
         {
-            TaskModel.Instance.ShowHelpCommands();
+            TaskViewModel.Instance.ShowHelpCommands();
         }
     }
 }

@@ -1,0 +1,3 @@
+Alias:test3
+Link:www.google.com
+WhenToRun:1 hour

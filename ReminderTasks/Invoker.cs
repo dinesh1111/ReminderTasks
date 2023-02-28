@@ -9,8 +9,7 @@ namespace ReminderTasks
             ICommand cmd = null;
             Dictionary<string, string> CommandsExcludeParam = new Dictionary<string, string>()
             {
-                {"deletecompleted","deletecompleted" },
-                {"updateall","updateall" }
+                {"deletecompleted","deletecompleted" }                
             };
             string[] splitActions = action?.Split(' ',StringSplitOptions.RemoveEmptyEntries);
             string command = string.Empty;
@@ -42,10 +41,7 @@ namespace ReminderTasks
                     break;
                 case "display":                
                     cmd = new DisplayCommand(parameter);
-                    break;
-                case "setdefaultreminderstime":
-                    cmd = new SetDefaultRemindersTimeCommand(parameter);
-                    break;
+                    break;                
                 case "open":
                     cmd = new OpenCommand(parameter);
                     break;
@@ -55,11 +51,11 @@ namespace ReminderTasks
                 case "deletecompleted":
                     cmd = new DeleteCompleteCommand();
                     break;
-                case "updateall":
-                    cmd = new UpdateAllCommand();
+                case "pause":
+                    cmd = new PauseCommand(parameter);
                     break;
                 default:
-                    TaskModel.Instance.WriteLine("Command is not correct");                    
+                    TaskViewModel.Instance.WriteLine("Command is not correct");                    
                     cmd = new ShowHelpCommand();
                     break;
 
