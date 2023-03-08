@@ -18,7 +18,9 @@ namespace ReminderTasks
         public const string AddMultipleItemsMessage = "Add items with line seperator in AddMultiple.txt file. Save & Close -> Enter";
         public const string ErrorFoundWhileAddingMultiple = "Error Found while adding multiple";
         public const string DBLoadingIssueFound = "DB Loading Issue...";
+        public const string SettingsLoadingIssueFound = "Settings Loading Issue...";
         public static string DBFolderPath = Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Items");
+        public static string SettingsPath = Path.Combine(System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Settings.txt");
         public const string DBFieldSeperator = ":";
         public static string ErrorLogPath = @"ErrorLog.txt";
         public static string AddMultiplePath = @"AddMultiple.txt";
@@ -29,8 +31,8 @@ namespace ReminderTasks
                 "delete {key}\r\n" +
                 "display {today/tomorrow/name/all}\r\n" +                
                 "open {key}\r\n" +
-                "deletecompleted\r\n" +
-                "pause {mins}\r\n" +
+                "deletecompleted\r\n" +                
+                "configuresettings\r\n" +
                 "Press CTL+C to Terminate";
         public const string OperationCanceled = "Operation Canceled";
         public const string MainMethod = "Main Method";

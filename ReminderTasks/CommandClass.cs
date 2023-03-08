@@ -130,16 +130,38 @@ namespace ReminderTasks
         }            
     }    
 
-    public class PauseCommand : ICommand
+    public class ConfigureSettingsCommand : ICommand
     {
-        public string parameter = string.Empty;
-        public PauseCommand(string param)
+        public ConfigureSettingsCommand()
         {
-            parameter = param.Trim();
+
         }
         public void Execute()
         {
-            TaskViewModel.Instance.ApplyPause(parameter);        
+            if (File.Exists(Messages.SettingsPath))
+            {
+                File.Delete(Messages.SettingsPath);
+            }
+
+            var myFile = File.Create(Messages.SettingsPath);
+            myFile.Close();
+            TaskViewModel.Instance.WriteLine("Settings for email configuration, Enter EmailID, And freequency time as following {emailid,mins}. If not required press ENTER key");            
+            string input = Console.ReadLine();
+            string settings = string.Empty;
+            if (input.Contains(","))
+            {                
+                settings +=  "Email:" + input.Split(",")[0]+"\r\n";
+                settings += "EmailFreequency:" + input.Split(",")[1]+"\r\n";
+            }
+
+            TaskViewModel.Instance.WriteLine("Settings for show notes configuration, Enter freequency time as following {mins}. If not required press ENTER key");
+            input = Console.ReadLine();
+            settings += "NotesFreequency:" + input+"\r\n";
+
+            File.WriteAllText(Messages.SettingsPath, settings);
+            TaskViewModel.Instance.FillSettings();
+            TaskViewModel.Instance.ResetNotesFreequency();
+            TaskViewModel.Instance.ResetEmailFreequency();
         }
     }
 

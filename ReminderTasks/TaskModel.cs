@@ -41,4 +41,31 @@ namespace ReminderTasks
             TimeToRun = timeToRun;
         }
     }
+
+    public class SettingsModel
+    {
+        public int Key
+        {
+            get; private set;
+        }
+        public string Email
+        {
+            get; private set;
+        }
+        public int? EmailFreequency
+        {
+            get; private set;
+        }
+        public int? NotesFreequency
+        {
+            get; private set;
+        }
+
+        public SettingsModel(string email,int? emailFreequency,int? notesFreequency)
+        {
+            Email = email;
+            EmailFreequency = emailFreequency;
+            NotesFreequency = notesFreequency;
+        }
+    }
 }

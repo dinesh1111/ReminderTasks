@@ -2,25 +2,30 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
+using System.Net;
+using System.Net;
+using System.Net.Mail;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using MailKit.Net.Smtp;
+using MailKit;
+using MimeKit;
 
 namespace ReminderTasks
 {
     public class TaskViewModel : TaskViewModelBase, ITaskViewModel
-    {
-
-        public int ShowReminderFileInMins = 60;
-        public int DefaultShowReminderCountInSeconds = 0;
-        public int PauseCountInSeconds = 0;
-        public ConcurrentDictionary<string, string> ReminderItems = new ConcurrentDictionary<string, string>();
+    {        
+        public int? ShowNotesReminderFreequency = null;
+        public int? SendEmailFreequency = null;
         
 
         public ConcurrentDictionary<string, TaskModel> DictTasks = new ConcurrentDictionary<string, TaskModel>();
+        public ConcurrentDictionary<string, SettingsModel> DictSettings = new ConcurrentDictionary<string, SettingsModel>();
         public Dictionary<string, int> whenToRunValidateStrings = new Dictionary<string, int>();
         public const int DefaultTimer = 15;
 
@@ -50,7 +55,9 @@ namespace ReminderTasks
                             instance.whenToRunValidateStrings.Add("hour", 60);
                             instance.whenToRunValidateStrings.Add("min", 1);
                             instance.LoadFromDB();
-                            instance.SetShowReminderFileInMins();
+                            instance.FillSettings();                            
+                            instance.ResetNotesFreequency();
+                            instance.ResetEmailFreequency();
                             Console.WriteLine("Ready");
                         }
                     }
@@ -59,9 +66,33 @@ namespace ReminderTasks
             }
         }
 
-        public void SetShowReminderFileInMins()
+        public void ResetNotesFreequency()
         {
-            DefaultShowReminderCountInSeconds = ShowReminderFileInMins * 60;
+            if(TaskViewModel.Instance.DictSettings.ContainsKey(nameof(SettingsModel)))
+            {
+                if(TaskViewModel.Instance.DictSettings[nameof(SettingsModel)].NotesFreequency!= null)
+                {
+                    ShowNotesReminderFreequency = TaskViewModel.Instance.DictSettings[nameof(SettingsModel)].NotesFreequency * 60;
+                }
+                else
+                {
+                    ShowNotesReminderFreequency = null;
+                }
+            }            
+        }
+        public void ResetEmailFreequency()
+        {
+            if (TaskViewModel.Instance.DictSettings.ContainsKey(nameof(SettingsModel)))
+            {
+                if (TaskViewModel.Instance.DictSettings[nameof(SettingsModel)].EmailFreequency != null)
+                {
+                    SendEmailFreequency = TaskViewModel.Instance.DictSettings[nameof(SettingsModel)].EmailFreequency * 60;
+                }
+                else
+                {
+                    SendEmailFreequency = null;
+                }
+            }
         }
 
         public string GetAliasName(string alias)
@@ -540,18 +571,61 @@ namespace ReminderTasks
             }
             return false;
         }
-
-        public void ApplyPause(string value)
+        
+        public void FillSettings()
         {
             try
             {
-                int mins = Convert.ToInt32(value);
-                TaskViewModel.Instance.PauseCountInSeconds = mins * 60;
+                bool DBLoadingIssueFound = false;
+                if (File.Exists(Messages.SettingsPath))
+                {
+                    Instance.DictSettings.Clear();
+                    string Items = File.ReadAllText(Messages.SettingsPath);
+                    string email = string.Empty;
+                    string emailFreequency = string.Empty;
+                    string notesFreequency = string.Empty;
+
+                    foreach (string item in Items.Split("\r\n", StringSplitOptions.RemoveEmptyEntries))
+                    {                        
+                        if (item.StartsWith(nameof(SettingsModel.EmailFreequency)))
+                        {
+                            emailFreequency = item.Replace(nameof(SettingsModel.EmailFreequency) + DBFieldSeperator, string.Empty);
+                        }
+                        else if(item.StartsWith(nameof(SettingsModel.Email)))
+                        {
+                            email = item.Replace(nameof(SettingsModel.Email) + DBFieldSeperator, string.Empty);
+                        }
+                        else if (item.StartsWith(nameof(SettingsModel.NotesFreequency)))
+                        {
+                            notesFreequency = item.Replace(nameof(SettingsModel.NotesFreequency) + DBFieldSeperator, string.Empty);
+                        }
+                        else
+                        {
+                            TaskViewModel.Instance.WriteLine(SettingsLoadingIssueFound);
+                            DBLoadingIssueFound = true;
+                            break;
+                        }                        
+                    }
+                    if (!DBLoadingIssueFound)
+                    {
+                        if (!Instance.DictSettings.ContainsKey(nameof(SettingsModel)))
+                        {
+                            SettingsModel settingsModel = new SettingsModel(email, emailFreequency != string.Empty ? Convert.ToInt32(emailFreequency) : null, notesFreequency != string.Empty ? Convert.ToInt32(notesFreequency) : null);
+                            Instance.DictSettings.TryAdd(nameof(SettingsModel), settingsModel);
+                        }
+                    }
+                    else
+                    {
+                        ApplicationError = true;
+                    }
+                }
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Enter number in mins");
-            }            
+                TaskViewModel.Instance.WriteToErrorLog(ex.Message, "FillSettings");
+                ApplicationError = true;
+            }
         }
     }
 }

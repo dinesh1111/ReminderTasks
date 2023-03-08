@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MimeKit;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -9,46 +10,94 @@ namespace ReminderTasks
 {
     public abstract class ITaskViewModelBase:Messages
     {        
-        public void FillReminders()
+        public void UpdateReminderTime()
         {
             foreach (var item in TaskViewModel.Instance.DictTasks)
             {
                 if (DateTime.Now >= item.Value.TimeToRun)
                 {
                     TaskViewModel.Instance.UpdateTimeToRun(item.Value);
-                    if (!TaskViewModel.Instance.ReminderItems.ContainsKey(item.Key))
-                    {
-                        TaskViewModel.Instance.ReminderItems.TryAdd(item.Key, TaskViewModel.Instance.GetItemsAsText(GetItemsType.AliasLinkWithOnlyPassingKey, string.Empty, item.Key).Item1);
-                    }
+                }
+            }
+        }
+
+        public void StartLinkIfTimeElapsed()
+        {
+            foreach (var item in TaskViewModel.Instance.DictTasks)
+            {
+                if (DateTime.Now >= item.Value.TimeToRun)
+                {
                     TaskViewModel.Instance.StartProcess(item.Value.Link);
                 }
             }
         }
+
         public void ShowReminders()
         {
-            string result = string.Empty;
-            foreach (var item in TaskViewModel.Instance.ReminderItems)
+            string now = "----Today----\r\n";
+            string later = "----Later----\r\n";
+            foreach (var item in TaskViewModel.Instance.DictTasks)
             {
-                result += item.Value + "\r\n";
+                if (DateTime.Now >= item.Value.TimeToRun)
+                {
+                    now += item.Value.Alias + "\r\n"+item.Value.Link;
+                }
+                else
+                {
+                    later += item.Value.Alias + "\r\n" + item.Value.Link;
+                }
             }
-            if (result.Trim() != string.Empty)
+            if (now.Trim() != string.Empty)
             {
-                File.WriteAllText(ShowTodoPath, result);
+                File.WriteAllText(ShowTodoPath, now+"\r\n"+later);
                 TaskViewModel.Instance.StartProcess(ShowTodoPath);
             }
         }
-        public void ClearReminders()
+
+        public void SendRemindersEmail(string toEmail)
         {
-            TaskViewModel.Instance.ReminderItems.Clear();
-        }
-        public bool NotInPause()
-        {
-            if (TaskViewModel.Instance.PauseCountInSeconds <= 0)
+            try
             {
-                return true;
+
+                var email = new MimeMessage();
+
+                email.From.Add(new MailboxAddress("Sender Name", "noreply@gmail.com"));
+                email.To.Add(new MailboxAddress("Receiver Name", toEmail));
+
+                email.Subject = "Reminders";
+                string today = "-----Today-----<br/>";
+                string later = "-----Later-----<br/>";
+                foreach (var item in TaskViewModel.Instance.DictTasks)
+                {
+                    if (item.Value.TimeToRun?.ToShortDateString() == DateTime.Now.ToShortDateString())
+                    {
+                        today += "<br/>" + item.Value.Alias + "<br/>";
+                    }
+                    else
+                    {
+                        later += "<br/>" + item.Value.Alias + "<br/>";
+                    }                    
+                }
+                email.Body = new TextPart(MimeKit.Text.TextFormat.Html)
+                {
+                    Text = today + "\r\n"+ later
+                };
+
+                using (var smtp = new MailKit.Net.Smtp.SmtpClient())
+                {
+                    smtp.Connect("smtp.gmail.com", 587, false);
+
+                    // Note: only needed if the SMTP server requires authentication
+                    smtp.Authenticate("dinesh.ms.net.add@gmail.com", "hrajwynoyxyytxft");
+
+                    smtp.Send(email);
+                    smtp.Disconnect(true);
+                }
             }
-            TaskViewModel.Instance.PauseCountInSeconds--;
-            return false;
+            catch
+            {
+
+            }
         }
     }
 }

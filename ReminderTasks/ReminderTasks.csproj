@@ -29,6 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="3.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="command-line_115191.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

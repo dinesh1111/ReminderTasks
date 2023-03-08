@@ -10,6 +10,5 @@ namespace ReminderTasks
     {
         public void ParseAndFillTimeToRun(TaskModel taskModel);
         public bool ValidateTimeToRun(string whenToRun);
-        public void ApplyPause(string mins);
     }
 }

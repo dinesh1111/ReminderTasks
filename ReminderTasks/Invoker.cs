@@ -9,7 +9,9 @@ namespace ReminderTasks
             ICommand cmd = null;
             Dictionary<string, string> CommandsExcludeParam = new Dictionary<string, string>()
             {
-                {"deletecompleted","deletecompleted" }                
+                {"deletecompleted","deletecompleted" },
+                {"configuresettings","configuresettings" }
+
             };
             string[] splitActions = action?.Split(' ',StringSplitOptions.RemoveEmptyEntries);
             string command = string.Empty;
@@ -50,9 +52,9 @@ namespace ReminderTasks
                     break;
                 case "deletecompleted":
                     cmd = new DeleteCompleteCommand();
-                    break;
-                case "pause":
-                    cmd = new PauseCommand(parameter);
+                    break;                
+                case "configuresettings":
+                    cmd = new ConfigureSettingsCommand();
                     break;
                 default:
                     TaskViewModel.Instance.WriteLine("Command is not correct");                    
