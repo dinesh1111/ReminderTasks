@@ -27,7 +27,7 @@ namespace ReminderTasks
 
             aliasName = parameter;
             link = TaskViewModel.Instance.GetLink();
-            whenToRun = TaskViewModel.Instance.GetWhenToRunUntilValidationSuccess();
+            whenToRun = TaskViewModel.Instance.GetWhenToRunUntilValidationSuccess();            
 
             if (TaskViewModel.Instance.Add(aliasName, link, whenToRun))
             {

@@ -54,16 +54,16 @@ namespace ReminderTasks
         {
             while(true)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(1000);                
+                taskVMBase.StartLinkIfTimeElapsed();
+                taskVMBase.UpdateReminderTime();
                 if (TaskViewModel.Instance.ShowNotesReminderFreequency != null)
                     {                        
                         TaskViewModel.Instance.ShowNotesReminderFreequency--;
                         if (TaskViewModel.Instance.ShowNotesReminderFreequency <= 0)
-                        {
-                            taskVMBase.UpdateReminderTime();
-                            taskVMBase.StartLinkIfTimeElapsed();
+                        {                            
                             taskVMBase.ShowReminders();
-                            TaskViewModel.Instance.ResetNotesFreequency();                            
+                            TaskViewModel.Instance.ResetNotesFreequency();
                         }
                     }
 
@@ -71,9 +71,7 @@ namespace ReminderTasks
                     {                        
                         TaskViewModel.Instance.SendEmailFreequency--;
                         if (TaskViewModel.Instance.SendEmailFreequency <= 0)
-                        {                            
-                            taskVMBase.UpdateReminderTime();
-                            taskVMBase.StartLinkIfTimeElapsed();
+                        {                                                        
                             if (TaskViewModel.Instance.DictSettings.ContainsKey(nameof(SettingsModel)))
                             {
                                 taskVMBase.SendRemindersEmail(TaskViewModel.Instance.DictSettings[nameof(SettingsModel)].Email);

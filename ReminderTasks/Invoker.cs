@@ -34,7 +34,7 @@ namespace ReminderTasks
             {
                 case "add":
                     cmd = new AddCommand(parameter);
-                    break;
+                    break;                
                 case "update":
                     cmd = new UpdateCommand(parameter);
                     break;
