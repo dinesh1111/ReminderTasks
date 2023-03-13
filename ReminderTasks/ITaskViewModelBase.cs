@@ -36,20 +36,22 @@ namespace ReminderTasks
         {
             string now = "----Today----\r\n";
             string later = "----Later----\r\n";
+            int count = 0;
             foreach (var item in TaskViewModel.Instance.DictTasks)
             {
-                if (DateTime.Now >= item.Value.TimeToRun)
+                count = count + 1;
+                if (DateTime.Now >= item.Value.TimeToRun || DateTime.Now.ToShortDateString() == Convert.ToDateTime(item.Value.TimeToRun).ToShortDateString())
                 {
-                    now += item.Value.Alias + "\r\n"+item.Value.Link;
+                    now += count + "." + item.Value.Alias + "\r\n"+item.Value.Link+"\r\n";
                 }
                 else
                 {
-                    later += item.Value.Alias + "\r\n" + item.Value.Link;
+                    later += count + "."+ item.Value.Alias + "\r\n" + item.Value.Link+"\r\n";
                 }
             }
             if (now.Trim() != string.Empty)
             {
-                File.WriteAllText(ShowTodoPath, now+"\r\n"+later);
+                File.WriteAllText(ShowTodoPath, now+"\r\n"+"\r\n"+later);
                 TaskViewModel.Instance.StartProcess(ShowTodoPath);
             }
         }

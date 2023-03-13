@@ -1,0 +1,4 @@
+Email:dinesh.ms.net@gmail.com
+EmailFreequency:120
+NotesFreequency:
+AutoOpenLink:false

@@ -27,7 +27,7 @@ namespace ReminderTasks
         public ConcurrentDictionary<string, TaskModel> DictTasks = new ConcurrentDictionary<string, TaskModel>();
         public ConcurrentDictionary<string, SettingsModel> DictSettings = new ConcurrentDictionary<string, SettingsModel>();
         public Dictionary<string, int> whenToRunValidateStrings = new Dictionary<string, int>();
-        public const int DefaultTimer = 15;
+        public const int DefaultTimer = 15;        
 
         public TaskViewModel()
         {
@@ -47,7 +47,7 @@ namespace ReminderTasks
                         if (instance == null)
                         {
                             Console.WriteLine("Loading");
-                            instance = new TaskViewModel();
+                            instance = new TaskViewModel();                            
                             instance.whenToRunValidateStrings.Add("days", 1440);
                             instance.whenToRunValidateStrings.Add("day", 1440);
                             instance.whenToRunValidateStrings.Add("hours", 60);
@@ -63,6 +63,26 @@ namespace ReminderTasks
                     }
                 }
                 return instance;
+            }
+        }
+
+        private static TaskViewModelBase taskVMBase;
+        public static TaskViewModelBase TaskVMBase
+        {
+            get
+            {
+                if (taskVMBase == null)
+                {
+                    lock (lockObject)
+                    {
+                        if (taskVMBase == null)
+                        {                            
+                            taskVMBase = new TaskViewModelBase();                           
+                            taskVMBase.ShowReminders();
+                        }
+                    }
+                }
+                return taskVMBase;
             }
         }
 
@@ -584,6 +604,7 @@ namespace ReminderTasks
                     string email = string.Empty;
                     string emailFreequency = string.Empty;
                     string notesFreequency = string.Empty;
+                    string autoOpenLink = string.Empty;
 
                     foreach (string item in Items.Split("\r\n", StringSplitOptions.RemoveEmptyEntries))
                     {                        
@@ -599,6 +620,10 @@ namespace ReminderTasks
                         {
                             notesFreequency = item.Replace(nameof(SettingsModel.NotesFreequency) + DBFieldSeperator, string.Empty);
                         }
+                        else if (item.StartsWith(nameof(SettingsModel.AutoOpenLink)))
+                        {
+                            autoOpenLink = item.Replace(nameof(SettingsModel.AutoOpenLink) + DBFieldSeperator, string.Empty);
+                        }
                         else
                         {
                             TaskViewModel.Instance.WriteLine(SettingsLoadingIssueFound);
@@ -610,7 +635,9 @@ namespace ReminderTasks
                     {
                         if (!Instance.DictSettings.ContainsKey(nameof(SettingsModel)))
                         {
-                            SettingsModel settingsModel = new SettingsModel(email, emailFreequency != string.Empty ? Convert.ToInt32(emailFreequency) : null, notesFreequency != string.Empty ? Convert.ToInt32(notesFreequency) : null);
+                            SettingsModel settingsModel = new SettingsModel(email, emailFreequency != string.Empty ? Convert.ToInt32(emailFreequency) : null, 
+                                notesFreequency != string.Empty ? Convert.ToInt32(notesFreequency) : null, 
+                                autoOpenLink.ToLower() == "false" ? false : true);
                             Instance.DictSettings.TryAdd(nameof(SettingsModel), settingsModel);
                         }
                     }

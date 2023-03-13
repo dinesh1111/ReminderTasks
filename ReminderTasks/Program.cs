@@ -6,8 +6,6 @@ namespace ReminderTasks
     {
         readonly static CancellationTokenSource _cancelTokenSrc = new CancellationTokenSource();
         static Invoker InvokerObject = new Invoker();
-        static TaskViewModelBase taskVMBase = new TaskViewModelBase();
-
         
         static void Main(string[] args)
         {
@@ -54,15 +52,21 @@ namespace ReminderTasks
         {
             while(true)
             {
-                Thread.Sleep(1000);                
-                taskVMBase.StartLinkIfTimeElapsed();
-                taskVMBase.UpdateReminderTime();
+                Thread.Sleep(1000);
+                if (TaskViewModel.Instance.DictSettings.ContainsKey(nameof(SettingsModel)))
+                {
+                    if(TaskViewModel.Instance.DictSettings[nameof(SettingsModel)].AutoOpenLink)
+                    {
+                        TaskViewModel.TaskVMBase.StartLinkIfTimeElapsed();
+                    }
+                }
+                TaskViewModel.TaskVMBase.UpdateReminderTime();
                 if (TaskViewModel.Instance.ShowNotesReminderFreequency != null)
                     {                        
                         TaskViewModel.Instance.ShowNotesReminderFreequency--;
                         if (TaskViewModel.Instance.ShowNotesReminderFreequency <= 0)
-                        {                            
-                            taskVMBase.ShowReminders();
+                        {
+                            TaskViewModel.TaskVMBase.ShowReminders();
                             TaskViewModel.Instance.ResetNotesFreequency();
                         }
                     }
@@ -74,7 +78,7 @@ namespace ReminderTasks
                         {                                                        
                             if (TaskViewModel.Instance.DictSettings.ContainsKey(nameof(SettingsModel)))
                             {
-                                taskVMBase.SendRemindersEmail(TaskViewModel.Instance.DictSettings[nameof(SettingsModel)].Email);
+                                TaskViewModel.TaskVMBase.SendRemindersEmail(TaskViewModel.Instance.DictSettings[nameof(SettingsModel)].Email);
                             }
                             TaskViewModel.Instance.ResetEmailFreequency();                            
                         }

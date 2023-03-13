@@ -60,12 +60,17 @@ namespace ReminderTasks
         {
             get; private set;
         }
+        public bool AutoOpenLink
+        {
+            get;private set;
+        }
 
-        public SettingsModel(string email,int? emailFreequency,int? notesFreequency)
+        public SettingsModel(string email,int? emailFreequency, int? notesFreequency, bool autoOpenLink)
         {
             Email = email;
             EmailFreequency = emailFreequency;
             NotesFreequency = notesFreequency;
+            AutoOpenLink = autoOpenLink;
         }
     }
 }

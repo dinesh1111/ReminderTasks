@@ -1,0 +1,10 @@
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Release\net6.0\app.publish\ReminderTasks.exe
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Release\net6.0\app.publish\ReminderTasks.dll
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Release\net6.0\app.publish\ReminderTasks.deps.json
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Release\net6.0\app.publish\ReminderTasks.runtimeconfig.json
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Release\net6.0\app.publish\ReminderTasks.pdb
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Release\net6.0\app.publish\MailKit.dll
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Release\net6.0\app.publish\MimeKit.dll
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Release\net6.0\app.publish\BouncyCastle.Crypto.dll
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Release\net6.0\app.publish\System.Security.Cryptography.Pkcs.dll
+C:\Rajesh\ReminderTasks\ReminderTasks\bin\Release\net6.0\app.publish\runtimes\win\lib\net6.0\System.Security.Cryptography.Pkcs.dll

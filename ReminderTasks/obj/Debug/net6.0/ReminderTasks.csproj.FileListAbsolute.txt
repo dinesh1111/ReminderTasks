@@ -1,5 +1,4 @@
 C:\Rajesh\ReminderTasks\ReminderTasks\bin\Debug\net6.0\ReminderTasks.exe
-C:\Rajesh\ReminderTasks\ReminderTasks\bin\Debug\net6.0\command-line_115191.ico
 C:\Rajesh\ReminderTasks\ReminderTasks\bin\Debug\net6.0\ReminderTasks.deps.json
 C:\Rajesh\ReminderTasks\ReminderTasks\bin\Debug\net6.0\ReminderTasks.runtimeconfig.json
 C:\Rajesh\ReminderTasks\ReminderTasks\bin\Debug\net6.0\ReminderTasks.dll

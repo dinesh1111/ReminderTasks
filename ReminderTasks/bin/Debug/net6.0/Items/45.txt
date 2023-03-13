@@ -1,0 +1,3 @@
+Alias:test2
+Link:
+WhenToRun:1 day

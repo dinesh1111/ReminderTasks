@@ -22,6 +22,21 @@
     <None Include="bin\Debug\net6.0\ReminderTasks.dll" />
     <None Include="bin\Debug\net6.0\ReminderTasks.exe" />
     <None Include="bin\Debug\net6.0\ReminderTasks.pdb" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\bin\Debug\net6.0\ReminderTasks.deps.json.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\bin\Debug\net6.0\ReminderTasks.runtimeconfig.json.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\BouncyCastle.Crypto.dll.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\Launcher.exe.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\MailKit.dll.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\MimeKit.dll.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\ReminderTasks.deps.json.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\ReminderTasks.dll.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\ReminderTasks.dll.manifest" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\ReminderTasks.exe.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\ReminderTasks.runtimeconfig.json.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\runtimes\win\lib\net6.0\System.Security.Cryptography.Pkcs.dll.deploy" />
+    <None Include="bin\publish\Application Files\ReminderTasks_1_0_0_0\System.Security.Cryptography.Pkcs.dll.deploy" />
+    <None Include="bin\publish\ReminderTasks.application" />
+    <None Include="bin\publish\setup.exe" />
   </ItemGroup>
 
   <ItemGroup>

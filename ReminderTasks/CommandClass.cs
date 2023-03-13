@@ -158,6 +158,10 @@ namespace ReminderTasks
             input = Console.ReadLine();
             settings += "NotesFreequency:" + input+"\r\n";
 
+            TaskViewModel.Instance.WriteLine("Settings for Auto open link{true|false}");
+            input = Console.ReadLine();
+            settings += "AutoOpenLink:" + input + "\r\n";
+
             File.WriteAllText(Messages.SettingsPath, settings);
             TaskViewModel.Instance.FillSettings();
             TaskViewModel.Instance.ResetNotesFreequency();
